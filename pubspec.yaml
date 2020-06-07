@@ -2,7 +2,7 @@ name: fast_mvvm
 description: MVVM
 version: 0.0.1
 author: 康建群 kang_1994@outlook.com
-homepage:
+homepage: https://github.com/StrangerKjq/fast_mvvm
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
