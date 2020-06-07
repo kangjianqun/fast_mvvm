@@ -1,14 +1,4 @@
 # fast_mvvm
 
-A new Flutter plugin.
+一个基于MVVM的简单demo,会更一直更新，希望支持一下.有问题可以反馈QQ 275918180。
 
-## Getting Started
-
-This project is a starting point for a Flutter
-[plug-in package](https://flutter.dev/developing-packages/),
-a specialized package that includes platform-specific implementation code for
-Android and/or iOS.
-
-For help getting started with Flutter, view our 
-[online documentation](https://flutter.dev/docs), which offers tutorials, 
-samples, guidance on mobile development, and a full API reference.
