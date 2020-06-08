@@ -19,13 +19,24 @@ typedef VMBuilder<T extends BaseViewModel> = Widget Function(
 
 typedef VSBuilder<T extends BaseViewModel> = Widget Function(T vm);
 
-/// 初始化
-void initMVVM(List<BaseModel> models, {int initPage = 1}) {
+/// 初始化 配置初始页面全局状态页
+void initMVVM<VM extends BaseViewModel>(
+  List<BaseModel> models, {
+  int initPage = 1,
+  VSBuilder<VM> busy,
+  VSBuilder<VM> empty,
+  VSBuilder<VM> error,
+  VSBuilder<VM> unAuthorized,
+}) {
   assert(initPage != null);
 
   /// 载入model 后期调用API
   addModel(list: models);
   BaseListViewModel.pageNumFirst = initPage;
+  _Config.gBusy = busy;
+  _Config.gEmpty = empty;
+  _Config.gError = error;
+  _Config.gunAuthorized = unAuthorized;
 }
 
 /// 基类的API 声明API
@@ -382,8 +393,28 @@ abstract class BaseListViewModel<M extends BaseModel, E extends BaseEntity, I>
   }
 }
 
+/// 基类配置，配置全局默认状态页
+class _Config<VM extends BaseViewModel> {
+  static VSBuilder gBusy;
+  static VSBuilder gEmpty;
+  static VSBuilder gError;
+  static VSBuilder gunAuthorized;
+
+  VSBuilder<VM> busy;
+  VSBuilder<VM> empty;
+  VSBuilder<VM> error;
+  VSBuilder<VM> unAuthorized;
+
+  _Config(this.busy, this.empty, this.error, this.unAuthorized) {
+    this.busy ??= gBusy;
+    this.empty ??= gEmpty;
+    this.error ??= gError;
+    this.unAuthorized ??= gunAuthorized;
+  }
+}
+
 /// view层 配置用类
-class ViewConfig<VM extends BaseViewModel> {
+class ViewConfig<VM extends BaseViewModel> extends _Config<VM> {
   ViewConfig({
     @required this.vm,
     this.child,
@@ -392,12 +423,13 @@ class ViewConfig<VM extends BaseViewModel> {
     this.checkEmpty = true,
     this.state,
     this.value = false,
-    this.busy,
-    this.empty,
-    this.error,
-    this.unAuthorized,
+    VSBuilder<VM> busy,
+    VSBuilder<VM> empty,
+    VSBuilder<VM> error,
+    VSBuilder<VM> unAuthorized,
   })  : this.root = true,
-        this._firstLoad = true;
+        this._firstLoad = true,
+        super(busy, empty, error, unAuthorized);
 
   ViewConfig.value({
     @required this.vm,
@@ -407,12 +439,13 @@ class ViewConfig<VM extends BaseViewModel> {
     this.checkEmpty = true,
     this.state,
     this.value = true,
-    this.busy,
-    this.empty,
-    this.error,
-    this.unAuthorized,
+    VSBuilder<VM> busy,
+    VSBuilder<VM> empty,
+    VSBuilder<VM> error,
+    VSBuilder<VM> unAuthorized,
   })  : this.root = true,
-        this._firstLoad = true;
+        this._firstLoad = true,
+        super(busy, empty, error, unAuthorized);
 
   ViewConfig.noRoot({
     @required this.vm,
@@ -422,21 +455,18 @@ class ViewConfig<VM extends BaseViewModel> {
     this.checkEmpty = true,
     this.state,
     this.value = false,
-    this.busy,
-    this.empty,
-    this.error,
-    this.unAuthorized,
+    VSBuilder<VM> busy,
+    VSBuilder<VM> empty,
+    VSBuilder<VM> error,
+    VSBuilder<VM> unAuthorized,
   })  : this.root = false,
-        this._firstLoad = true;
+        this._firstLoad = true,
+        super(busy, empty, error, unAuthorized);
 
   /// VM
   VM vm;
 
   Widget child;
-  VSBuilder<VM> busy;
-  VSBuilder<VM> empty;
-  VSBuilder<VM> error;
-  VSBuilder<VM> unAuthorized;
 
   /// 背景颜色
   Color color;

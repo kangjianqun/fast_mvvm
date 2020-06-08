@@ -18,7 +18,6 @@ class DataResponse<T> {
   });
 }
 
-
 class _ViewStateNotifier {
   ValueNotifier<bool> vn;
   bool notifier;
