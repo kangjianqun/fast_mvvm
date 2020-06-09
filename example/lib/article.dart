@@ -29,7 +29,7 @@ class ArticleVM
   List<ArticleItem> get list => entity.list;
 
   @override
-  Future<DataResponse<ArticleEntity>> request({bool isLoad, int page, params}) {
+  Future<DataResponse<ArticleEntity>> requestHttp({bool isLoad, int page, params}) {
     return model.getArticleList();
   }
 }

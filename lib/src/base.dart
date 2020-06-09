@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:fast_event_bus/fast_event_bus.dart';
+import 'package:fast_mvvm/fast_mvvm.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_easyrefresh/easy_refresh.dart';
 import 'package:provider/provider.dart';
@@ -32,7 +33,7 @@ void initMVVM<VM extends BaseViewModel>(
 
   /// 载入model 后期调用API
   addModel(list: models);
-  BaseListViewModel.pageNumFirst = initPage;
+  BaseListViewModel.pageFirst = initPage;
   _Config.gBusy = busy;
   _Config.gEmpty = empty;
   _Config.gError = error;
@@ -208,19 +209,16 @@ abstract class BaseViewModel<M extends BaseModel, E extends BaseEntity>
 
   bool isHttp() => true;
 
-  Future<bool> initData(bool isLoad) async => true;
-
   /// 进入页面isInit loading
   Future<void> viewRefresh({
-    bool isLoad = false,
-    params,
+    bool showLoad = false,
+    dynamic params,
     bool notifier = true,
     bool busy = true,
   }) async {
-    if (busy && !isLoad) setBusy(true);
+    if (busy && !showLoad) setBusy(true);
     bool result = false;
-    result =
-        isHttp() ? await httpRequest(param: params) : await initData(isLoad);
+    result = await _request(param: params);
     _notifyIntercept = !notifier;
 //    LogUtil.printLog("notifier : $notifier _notifyIntercept:$_notifyIntercept");
     if (!result) {
@@ -231,10 +229,10 @@ abstract class BaseViewModel<M extends BaseModel, E extends BaseEntity>
     }
   }
 
-  /// 处理是否是http还在本地
-  Future<bool> httpRequest({param}) async {
+  /// 请求数据
+  Future<bool> _request({param}) async {
     try {
-      var data = await request(isLoad: false, params: param ?? defaultOfParams);
+      var data = await _httpOrData(false, BaseListViewModel.pageFirst, param);
       if (data == null || data.entity == null) {
         return false;
       } else {
@@ -248,8 +246,19 @@ abstract class BaseViewModel<M extends BaseModel, E extends BaseEntity>
     }
   }
 
+  /// 判断http或者data
+  Future<DataResponse<E>> _httpOrData(bool isLoad, int page, param) async {
+    return isHttp()
+        ? await requestHttp(
+            isLoad: isLoad, page: page, params: param ?? defaultOfParams)
+        : await requestData(isLoad, page);
+  }
+
+  /// 非http请求
+  Future<DataResponse<E>> requestData(bool isLoad, int page) async => null;
+
   /// http请求
-  Future<DataResponse<E>> request(
+  Future<DataResponse<E>> requestHttp(
           {@required bool isLoad, int page, params}) async =>
       null;
 
@@ -297,10 +306,10 @@ abstract class BaseListViewModel<M extends BaseModel, E extends BaseEntity, I>
   BaseListViewModel({params}) : super(defaultOfParams: params);
 
   /// 分页第一页页码
-  static int pageNumFirst = 1;
+  static int pageFirst = 1;
 
   /// 当前页码
-  int _currentPageNum = pageNumFirst;
+  int _currentPageNum = pageFirst;
   static int _totalPageNum = 1;
 
   /// 跟EasyRefresh 相关配置
@@ -310,6 +319,7 @@ abstract class BaseListViewModel<M extends BaseModel, E extends BaseEntity, I>
   @protected
   List<I> get list;
 
+  /// 验证数据
   bool _checkData(bool isLoad, DataResponse<E> data) {
     if (data == null || data.entity == null) return true;
     if (isLoad) {
@@ -320,21 +330,22 @@ abstract class BaseListViewModel<M extends BaseModel, E extends BaseEntity, I>
     return judgeNull(data);
   }
 
-  @override
-  void initResultData() {}
-
-  void jointList(E newModel);
-
   /// 判断页面是否为空
   @protected
   bool judgeNull(DataResponse<E> data) => list == null || list.isEmpty;
 
+  /// 拼接数据
+  void jointList(E newEntity);
+
+  /// 请求数据后，子类初始数据
+  @override
+  void initResultData() {}
+
   /// 下拉刷新
-  Future<bool> httpRequest({param}) async {
+  Future<bool> _request({param}) async {
     try {
-      _currentPageNum = pageNumFirst;
-      DataResponse<E> data = await request(
-          isLoad: false, page: pageNumFirst, params: param ?? defaultOfParams);
+      _currentPageNum = pageFirst;
+      var data = await _httpOrData(false, pageFirst, param);
       refreshController.finishRefresh();
       refreshController.resetLoadState();
       if (_checkData(false, data)) {
@@ -362,8 +373,7 @@ abstract class BaseListViewModel<M extends BaseModel, E extends BaseEntity, I>
       var cPage = ++_currentPageNum;
       //debugPrint('ViewStateRefreshListViewModel.loadMore page: $currentPage');
       try {
-        var data =
-            await request(isLoad: true, page: cPage, params: defaultOfParams);
+        var data = await _httpOrData(true, cPage, defaultOfParams);
         if (_checkData(true, data)) {
           _currentPageNum--;
           refreshController.finishLoad(success: true, noMore: true);
