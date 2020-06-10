@@ -17,8 +17,10 @@ class UserModel extends BaseModel {
   Future<DataResponse<ArticleEntity>> getArticleList() async {
     await Future.delayed(Duration(seconds: 1));
 
-    var entity = ArticleEntity(
-        [ArticleItem("1", "好的", "内容内容内容内容内容", DateTime.now().toString())]);
+    var entity = ArticleEntity([
+      ArticleItem("1", "好的", "内容内容内容内容内容", DateTime.now().toString()),
+      ArticleItem("1", "好的", "内容内容内容内容内容", DateTime.now().toString()),
+    ]);
 
     DataResponse dataResponse =
         DataResponse<ArticleEntity>(entity: entity, totalPageNum: 3);
