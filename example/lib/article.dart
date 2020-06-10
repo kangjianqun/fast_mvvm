@@ -1,6 +1,7 @@
 import 'package:fast_mvvm/fast_mvvm.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyrefresh/easy_refresh.dart';
+import 'package:provider/provider.dart';
 
 import 'main.dart';
 
@@ -21,6 +22,7 @@ class ArticleItem {
 
 class ArticleVM
     extends BaseListViewModel<UserModel, ArticleEntity, ArticleItem> {
+  ValueNotifier<String> vnTime = ValueNotifier("暂无");
 
   @override
   void jointList(ArticleEntity newEntity) => entity.list.addAll(newEntity.list);
@@ -29,15 +31,36 @@ class ArticleVM
   List<ArticleItem> get list => entity.list;
 
   @override
-  Future<DataResponse<ArticleEntity>> requestHttp({bool isLoad, int page, params}) {
+  Future<DataResponse<ArticleEntity>> requestHttp(
+      {bool isLoad, int page, params}) {
     return model.getArticleList();
+  }
+
+  @override
+  void initResultData() {
+    vnTime.value = list[0].time;
+  }
+
+  /// 修改第一个数据的时间
+  void modifyFistTime() {
+    list[0].time = DateTime.now().toString();
+    vnTime.value = list[0].time;
+    notifyListeners();
   }
 }
 
 class ArticlePage extends StatelessWidget with BaseView<ArticleVM> {
+  const ArticlePage(this.rootRefresh, {Key key}) : super(key: key);
+
+  /// 是否全局刷新
+  final bool rootRefresh;
+
   @override
-  ViewConfig<ArticleVM> initConfig(BuildContext context) =>
-      ViewConfig(vm: ArticleVM());
+  ViewConfig<ArticleVM> initConfig(BuildContext context) {
+    return rootRefresh
+        ? ViewConfig(vm: ArticleVM())
+        : ViewConfig.noRoot(vm: ArticleVM());
+  }
 
   @override
   Widget vmBuild(
@@ -45,14 +68,42 @@ class ArticlePage extends StatelessWidget with BaseView<ArticleVM> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(title: Text("文章")),
+      bottomNavigationBar: state ??
+          Container(
+            color: Colors.amber,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                MaterialButton(
+                  onPressed: vm.modifyFistTime,
+                  color: Colors.white,
+                  child: Text("修改第一个Item时间"),
+                ),
+                ValueListenableBuilder<String>(
+                  valueListenable: vm.vnTime,
+                  builder: (_, value, __) {
+                    return Text("第一个Item时间：$value");
+                  },
+                ),
+                Text("根布局刷新时间：${DateTime.now().toString()}"),
+              ],
+            ),
+          ),
       body: state ??
           EasyRefresh(
             controller: vm.refreshController,
             onLoad: vm.loadMore,
             onRefresh: vm.viewRefresh,
             child: ListView.builder(
-                itemCount: vm.list.length,
-                itemBuilder: (ctx, index) => _item(vm.list[index])),
+              itemCount: vm.list.length,
+              itemBuilder: (ctx, index) {
+                return Selector<ArticleVM, ArticleItem>(
+                  selector: (_, aVM) => aVM.list[index],
+                  shouldRebuild: (pre, next) => pre == next,
+                  builder: (_, ArticleItem value, __) => _item(value),
+                );
+              },
+            ),
           ),
     );
   }
