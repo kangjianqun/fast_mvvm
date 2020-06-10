@@ -75,6 +75,9 @@ abstract class BaseViewModel<M extends BaseModel, E extends BaseEntity>
   /// 默认参数
   var defaultOfParams;
 
+  /// 主动全局刷新 用在首次跟下拉刷新和上拉加载
+  bool _activeGlobalRefresh = true;
+
   /// 防止页面销毁后,异步任务才完成,导致报错
   bool _disposed = false;
   bool _notifyIntercept = false;
@@ -211,12 +214,11 @@ abstract class BaseViewModel<M extends BaseModel, E extends BaseEntity>
 
   /// 进入页面isInit loading
   Future<void> viewRefresh({
-    bool showLoad = false,
     dynamic params,
     bool notifier = true,
     bool busy = true,
   }) async {
-    if (busy && !showLoad) setBusy(true);
+    if (busy) setBusy(true);
     bool result = false;
     result = await _request(param: params);
     _notifyIntercept = !notifier;
@@ -341,7 +343,7 @@ abstract class BaseListViewModel<M extends BaseModel, E extends BaseEntity, I>
   @override
   void initResultData() {}
 
-  /// 下拉刷新
+  /// 获取数据
   Future<bool> _request({param}) async {
     try {
       _currentPageNum = pageFirst;
@@ -364,9 +366,16 @@ abstract class BaseListViewModel<M extends BaseModel, E extends BaseEntity, I>
     }
   }
 
+  /// 下拉刷新
+  Future<void> pullRefresh({bool globalRefresh = true}) async {
+    _activeGlobalRefresh = globalRefresh;
+    await viewRefresh(busy: false);
+  }
+
   /// 上拉加载更多
-  Future<void> loadMore() async {
+  Future<void> loadMore({bool globalRefresh = true}) async {
 //    print('------> current: $_currentPageNum  total: $_totalPageNum');
+    _activeGlobalRefresh = globalRefresh;
     if (_currentPageNum >= _totalPageNum) {
       refreshController.finishLoad(success: true, noMore: true);
     } else {
@@ -438,7 +447,6 @@ class ViewConfig<VM extends BaseViewModel> extends _Config<VM> {
     VSBuilder<VM> error,
     VSBuilder<VM> unAuthorized,
   })  : this.root = true,
-        this._firstLoad = true,
         super(busy, empty, error, unAuthorized);
 
   ViewConfig.value({
@@ -454,7 +462,6 @@ class ViewConfig<VM extends BaseViewModel> extends _Config<VM> {
     VSBuilder<VM> error,
     VSBuilder<VM> unAuthorized,
   })  : this.root = true,
-        this._firstLoad = true,
         super(busy, empty, error, unAuthorized);
 
   ViewConfig.noRoot({
@@ -470,7 +477,6 @@ class ViewConfig<VM extends BaseViewModel> extends _Config<VM> {
     VSBuilder<VM> error,
     VSBuilder<VM> unAuthorized,
   })  : this.root = false,
-        this._firstLoad = true,
         super(busy, empty, error, unAuthorized);
 
   /// VM
@@ -486,9 +492,6 @@ class ViewConfig<VM extends BaseViewModel> extends _Config<VM> {
 
   /// 是否根布局刷新 采用 [Selector]
   bool root;
-
-  /// 首次加载
-  bool _firstLoad;
 
   /// [ChangeNotifierProvider.value] 或者[ChangeNotifierProvider]
   bool value;
@@ -584,8 +587,8 @@ Widget _root<VM extends BaseViewModel>(
       selector: (ctx, vm) => vm.entity,
       shouldRebuild: (_, __) {
         if (config.root) return true;
-        if (!config._firstLoad) return false;
-        config._firstLoad = false;
+        if (!config.vm._activeGlobalRefresh) return false;
+        config.vm._activeGlobalRefresh = false;
         return true;
       },
       builder: (ctx, value, child) =>

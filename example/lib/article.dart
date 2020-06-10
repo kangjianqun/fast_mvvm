@@ -68,32 +68,33 @@ class ArticlePage extends StatelessWidget with BaseView<ArticleVM> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(title: Text("文章")),
-      bottomNavigationBar: state ??
-          Container(
-            color: Colors.amber,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                MaterialButton(
-                  onPressed: vm.modifyFistTime,
-                  color: Colors.white,
-                  child: Text("修改第一个Item时间"),
-                ),
-                ValueListenableBuilder<String>(
-                  valueListenable: vm.vnTime,
-                  builder: (_, value, __) {
-                    return Text("第一个Item时间：$value");
-                  },
-                ),
-                Text("根布局刷新时间：${DateTime.now().toString()}"),
-              ],
+      bottomNavigationBar: state != null
+          ? SizedBox()
+          : Container(
+              color: Colors.amber,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  MaterialButton(
+                    onPressed: vm.modifyFistTime,
+                    color: Colors.white,
+                    child: Text("修改第一个Item时间"),
+                  ),
+                  ValueListenableBuilder<String>(
+                    valueListenable: vm.vnTime,
+                    builder: (_, value, __) {
+                      return Text("第一个Item时间：$value");
+                    },
+                  ),
+                  Text("根布局刷新时间：${DateTime.now().toString()}"),
+                ],
+              ),
             ),
-          ),
       body: state ??
           EasyRefresh(
             controller: vm.refreshController,
             onLoad: vm.loadMore,
-            onRefresh: vm.viewRefresh,
+            onRefresh: vm.pullRefresh,
             child: ListView.builder(
               itemCount: vm.list.length,
               itemBuilder: (ctx, index) {
