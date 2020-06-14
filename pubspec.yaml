@@ -1,12 +1,11 @@
 name: fast_mvvm
 description: Implemented using the MVVM architecture, quickly build projects to help consumers focus only on the business implementation
 version: 1.0.6
-author: 康建群 kang_1994@outlook.com
 homepage: https://github.com/StrangerKjq/fast_mvvm
 
 environment:
-  sdk: ">=2.7.0 <3.0.0"
-  flutter: ">=1.10.0"
+  sdk: ">=2.1.0 <3.0.0"
+  flutter: ">=1.12.0 < 2.0.0"
 
 dependencies:
   flutter:

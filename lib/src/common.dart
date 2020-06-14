@@ -65,7 +65,7 @@ Map<String, BaseModel> _mList = {};
 void addModel({List<BaseModel> list}) =>
     list.forEach((element) => _addModel(element));
 
-void _addModel(BaseModel model) => _mList[model.runtimeType.toString()] = model;
+_addModel(BaseModel model) => _mList[model.runtimeType.toString()] = model;
 
 /// 全局Model
 M getModelGlobal<M extends BaseModel>() => _mList[M.toString()];

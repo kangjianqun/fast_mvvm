@@ -43,11 +43,11 @@ void initMVVM<VM extends BaseViewModel>(
 /// 基类的API 声明API
 mixin BaseRepo {}
 
-/// 基类Entity JSON数据实体
-class BaseEntity {}
-
 /// 基类Model  具体实现API
 class BaseModel with BaseRepo {}
+
+/// 基类Entity JSON数据实体
+class BaseEntity {}
 
 /// ViewModel的状态 控制页面基础显示
 enum ViewModelState { idle, busy, empty, error, unAuthorized }
@@ -324,11 +324,10 @@ abstract class BaseListViewModel<M extends BaseModel, E extends BaseEntity, I>
   /// 验证数据
   bool _checkData(bool isLoad, DataResponse<E> data) {
     if (data == null || data.entity == null) return true;
-    if (isLoad) {
+    if (isLoad)
       jointList(data.entity);
-    } else {
+    else
       entity = data.entity;
-    }
     return judgeNull(data);
   }
 
@@ -499,11 +498,11 @@ class ViewConfig<VM extends BaseViewModel> extends _Config<VM> {
   /// 是否验证空数据
   bool checkEmpty;
 
-  /// 页面变化控制
+  /// 页面变化控制  可以被其他页面控制刷新
   int state;
 }
 
-/// 获取可用的监听
+/// 获取可用的监听 [ChangeNotifierProvider.value] 或者 [ChangeNotifierProvider]
 ChangeNotifierProvider _availableCNP<T extends BaseViewModel>(
     BuildContext context, ViewConfig<T> changeNotifier,
     {Widget child}) {
@@ -520,36 +519,40 @@ ChangeNotifierProvider _availableCNP<T extends BaseViewModel>(
 /// 页面状态展示 空 正常 错误 忙碌
 Widget _viewState<VM extends BaseViewModel>(
     ViewConfig data, Widget Function(Widget state) builder) {
-  VM viewModel = data.vm;
+  VM vm = data.vm;
   var bgColor = data.color;
   var checkEmpty = data.checkEmpty;
   var state = data.state;
-  var empty = data.empty == null ? null : data.empty(viewModel);
-  var busy = data.busy == null ? null : data.busy(viewModel);
-  var error = data.error == null ? null : data.error(viewModel);
-  var un = data.unAuthorized == null ? null : data.unAuthorized(viewModel);
 
-  Widget stateView;
-  if (viewModel == null || checkEmpty && viewModel.empty) {
-    stateView = empty ??
+  /// 配置状态页 是否自定义
+  var empty = data.empty == null ? null : data.empty(vm);
+  var busy = data.busy == null ? null : data.busy(vm);
+  var error = data.error == null ? null : data.error(vm);
+  var un = data.unAuthorized == null ? null : data.unAuthorized(vm);
+
+  Widget _widget;
+
+  /// vm空 ｜｜ 需要验证空并且VM确实没有值
+  if (vm == null || checkEmpty && vm.empty) {
+    _widget = empty ??
         Container(
           color: bgColor,
-          child: ViewStateEmptyWidget(onTap: () => viewModel.viewRefresh()),
+          child: ViewStateEmptyWidget(onTap: () => vm.viewRefresh()),
         );
-  } else if (viewModel.busy) {
-    stateView = busy ?? ViewStateBusyWidget(backgroundColor: bgColor);
-  } else if (viewModel.error) {
-    stateView = error ?? ViewStateWidget(onTap: () => viewModel.viewRefresh());
-  } else if (viewModel.unAuthorized) {
-    stateView =
-        un ?? ViewStateUnAuthWidget(onTap: () => viewModel.viewRefresh());
+  } else if (vm.busy) {
+    _widget = busy ?? ViewStateBusyWidget(backgroundColor: bgColor);
+  } else if (vm.error) {
+    _widget = error ?? ViewStateWidget(onTap: () => vm.viewRefresh());
+  } else if (vm.unAuthorized) {
+    _widget = un ?? ViewStateUnAuthWidget(onTap: () => vm.viewRefresh());
   }
 
-  Widget view = builder(stateView);
-  if (bgColor != null) {
-    view = Container(child: view, color: bgColor);
-  }
+  Widget view = builder(_widget);
 
+  /// 添加背景颜色
+  if (bgColor != null) view = Container(child: view, color: bgColor);
+
+  /// 判断是否需要页面控制刷新
   if (state == null) {
     return view;
   } else {
@@ -563,7 +566,7 @@ Widget _viewState<VM extends BaseViewModel>(
           if (vsChanger.changer) {
 //                  LogUtil.printLog("state : ${state.toString()} value: $changer"
 //                      "notifier: ${vsChanger.notifier}");
-            viewModel.viewRefresh(notifier: vsChanger.notifier, busy: false);
+            vm.viewRefresh(notifier: vsChanger.notifier, busy: false);
           }
         } catch (e) {
           print(e);

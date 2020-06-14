@@ -70,7 +70,7 @@ class ViewStateWidget extends StatelessWidget {
         children: <Widget>[
           image ?? Icon(Icons.error_outline, size: 48, color: Colors.grey[500]),
           Padding(
-            padding: EdgeInsets.only(top: 48,bottom: 88),
+            padding: EdgeInsets.only(top: 48, bottom: 88),
             child: Text(
               message ?? "加载失败",
               style: Theme.of(context)
