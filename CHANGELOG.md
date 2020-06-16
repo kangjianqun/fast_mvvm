@@ -1,3 +1,18 @@
+## 1.0.8
+优化的刷新控制，子类可以自己实现控制
+
+BaseListViewModel
+
+BaseListViewModel({params, refreshController})
+      : super(defaultOfParams: params) {
+    _refreshController = refreshController;
+  }
+
+resetRefreshState
+finishRefresh
+resetLoadState
+finishLoad
+
 ## 1.0.7
 优化代码和注释。
 

@@ -24,6 +24,9 @@ class ArticleVM
     extends BaseListViewModel<UserModel, ArticleEntity, ArticleItem> {
   ValueNotifier<String> vnTime = ValueNotifier("暂无");
 
+  /// 配置刷新控制项
+  ArticleVM() : super(refreshController: EasyRefreshController());
+
   @override
   void jointList(ArticleEntity newEntity) => entity.list.addAll(newEntity.list);
 

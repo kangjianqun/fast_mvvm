@@ -305,7 +305,10 @@ abstract class BaseViewModel<M extends BaseModel, E extends BaseEntity>
 /// 基类 ListVM
 abstract class BaseListViewModel<M extends BaseModel, E extends BaseEntity, I>
     extends BaseViewModel<M, E> {
-  BaseListViewModel({params}) : super(defaultOfParams: params);
+  BaseListViewModel({params, refreshController})
+      : super(defaultOfParams: params) {
+    _refreshController = refreshController;
+  }
 
   /// 分页第一页页码
   static int pageFirst = 1;
@@ -314,9 +317,23 @@ abstract class BaseListViewModel<M extends BaseModel, E extends BaseEntity, I>
   int _currentPageNum = pageFirst;
   static int _totalPageNum = 1;
 
-  /// 跟EasyRefresh 相关配置
-  EasyRefreshController _refreshController = EasyRefreshController();
-  EasyRefreshController get refreshController => _refreshController;
+  /// 跟上拉刷新 下拉加载 相关配置
+  dynamic _refreshController = EasyRefreshController();
+  get refreshController => _refreshController;
+
+  /// 重置下拉刷新状态
+  resetRefreshState(controller) => controller.resetRefreshState();
+
+  /// 完成下拉刷新
+  finishRefresh(controller, {bool success, bool noMore}) =>
+      controller.finishRefresh(success: success, noMore: noMore);
+
+  /// 重置上拉加载状态
+  resetLoadState(controller) => controller.resetLoadState();
+
+  /// 完成上拉加载
+  finishLoad(controller, {bool success, bool noMore}) =>
+      controller.finishLoad(success: success, noMore: noMore);
 
   @protected
   List<I> get list;
@@ -347,19 +364,18 @@ abstract class BaseListViewModel<M extends BaseModel, E extends BaseEntity, I>
     try {
       _currentPageNum = pageFirst;
       var data = await _httpOrData(false, pageFirst, param);
-      refreshController.finishRefresh();
-      refreshController.resetLoadState();
+      resetLoadState(_refreshController);
       if (_checkData(false, data)) {
         return false;
       } else {
         initResultData();
         _totalPageNum = data.totalPageNum ?? 1;
-        refreshController.finishLoad(success: true);
+        finishRefresh(_refreshController, success: true);
         return true;
       }
     } catch (e, s) {
-      refreshController.finishRefresh(success: false);
-      refreshController.resetLoadState();
+      finishRefresh(_refreshController, success: false);
+      resetRefreshState(_refreshController);
       handleCatch(e, s);
       return false;
     }
@@ -376,7 +392,7 @@ abstract class BaseListViewModel<M extends BaseModel, E extends BaseEntity, I>
 //    print('------> current: $_currentPageNum  total: $_totalPageNum');
     _activeGlobalRefresh = globalRefresh;
     if (_currentPageNum >= _totalPageNum) {
-      refreshController.finishLoad(success: true, noMore: true);
+      finishLoad(_refreshController, success: true, noMore: true);
     } else {
       var cPage = ++_currentPageNum;
       //debugPrint('ViewStateRefreshListViewModel.loadMore page: $currentPage');
@@ -384,20 +400,16 @@ abstract class BaseListViewModel<M extends BaseModel, E extends BaseEntity, I>
         var data = await _httpOrData(true, cPage, defaultOfParams);
         if (_checkData(true, data)) {
           _currentPageNum--;
-          refreshController.finishLoad(success: true, noMore: true);
+          finishLoad(_refreshController, success: true, noMore: true);
         } else {
-          if (_currentPageNum >= _totalPageNum) {
-            refreshController.finishLoad(success: true, noMore: true);
-          } else {
-            refreshController.finishLoad(success: true, noMore: false);
-            refreshController.resetLoadState();
-          }
+          finishLoad(_refreshController,
+              success: true, noMore: _currentPageNum >= _totalPageNum);
           notifyListeners();
         }
       } catch (e, s) {
         _currentPageNum--;
-        refreshController.finishLoad(success: false);
-        refreshController.resetLoadState();
+        finishLoad(_refreshController, success: false);
+        resetLoadState(_refreshController);
         debugPrint('error--->\n' + e.toString());
         debugPrint('stack--->\n' + s.toString());
       }
@@ -406,7 +418,9 @@ abstract class BaseListViewModel<M extends BaseModel, E extends BaseEntity, I>
 
   @override
   void dispose() {
-    _refreshController.dispose();
+    try {
+      _refreshController.dispose();
+    } catch (e) {}
     super.dispose();
   }
 }
