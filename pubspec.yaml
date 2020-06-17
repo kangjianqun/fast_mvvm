@@ -1,6 +1,6 @@
 name: fast_mvvm
 description: Implemented using the MVVM architecture, quickly build projects to help consumers focus only on the business implementation
-version: 1.1.0
+version: 1.1.1
 homepage: https://github.com/StrangerKjq/fast_mvvm
 
 environment:

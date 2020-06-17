@@ -338,11 +338,11 @@ abstract class BaseListViewModel<M extends BaseModel, E extends BaseEntity, I>
   static int _totalPageNum = 1;
 
   /// 跟上拉刷新 下拉加载 相关配置
-  static ControllerBuild _controllerBuild = () => null;
-  static ResetRefreshState _resetRefreshState = (c) => {};
-  static FinishRefresh _finishRefresh = (c, {bool success, bool noMore}) {};
-  static ResetLoadState _resetLoadState = (c) {};
-  static FinishLoad _finishLoad = (c, {bool success, bool noMore}) {};
+  static ControllerBuild _controllerBuild;
+  static ResetRefreshState _resetRefreshState;
+  static FinishRefresh _finishRefresh;
+  static ResetLoadState _resetLoadState;
+  static FinishLoad _finishLoad;
 
   dynamic _refreshController =
       _controllerBuild == null ? null : _controllerBuild();
@@ -350,23 +350,25 @@ abstract class BaseListViewModel<M extends BaseModel, E extends BaseEntity, I>
 
   /// 重置下拉刷新状态
   resetRefreshState(controller) {
-    if (_resetRefreshState != null) _resetRefreshState(controller);
+    if (_resetRefreshState != null && controller != null)
+      _resetRefreshState(controller);
   }
 
   /// 完成下拉刷新
   finishRefresh(controller, {bool success, bool noMore}) {
-    if (_finishRefresh != null)
+    if (_finishRefresh != null && controller != null)
       _finishRefresh(controller, success: success, noMore: noMore);
   }
 
   /// 重置上拉加载状态
   resetLoadState(controller) {
-    if (_resetLoadState != null) _resetLoadState(controller);
+    if (_resetLoadState != null && controller != null)
+      _resetLoadState(controller);
   }
 
   /// 完成上拉加载
   finishLoad(controller, {bool success, bool noMore}) {
-    if (_finishLoad != null)
+    if (_finishLoad != null && controller != null)
       _finishLoad(controller, success: success, noMore: noMore);
   }
 
@@ -410,11 +412,11 @@ abstract class BaseListViewModel<M extends BaseModel, E extends BaseEntity, I>
       }
     } catch (e, s) {
       finishRefresh(_refreshController, success: false);
+      resetRefreshState(_refreshController);
       handleCatch(e, s);
       return false;
     } finally {
       resetLoadState(_refreshController);
-      resetRefreshState(_refreshController);
     }
   }
 
@@ -446,10 +448,10 @@ abstract class BaseListViewModel<M extends BaseModel, E extends BaseEntity, I>
       } catch (e, s) {
         _currentPageNum--;
         finishLoad(_refreshController, success: false);
+        resetLoadState(_refreshController);
         debugPrint('error--->\n' + e.toString());
         debugPrint('stack--->\n' + s.toString());
       } finally {
-        resetLoadState(_refreshController);
         resetRefreshState(_refreshController);
       }
     }
