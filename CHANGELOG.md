@@ -1,3 +1,6 @@
+## 1.1.0
+优化刷新的空判断。
+
 ## 1.0.9
 
 去掉 flutter_easyrefresh 依赖，initMVVM增加刷新全局配置

@@ -50,11 +50,14 @@ void initMVVM<VM extends BaseViewModel>(
   _Config.gEmpty = empty;
   _Config.gError = error;
   _Config.gunAuthorized = unAuthorized;
-  BaseListViewModel._resetRefreshState = resetRefreshState;
-  BaseListViewModel._finishRefresh = finishRefresh;
-  BaseListViewModel._resetLoadState = resetLoadState;
-  BaseListViewModel._finishLoad = finishLoad;
-  BaseListViewModel._controllerBuild = controllerBuild;
+  if (resetRefreshState != null)
+    BaseListViewModel._resetRefreshState = resetRefreshState;
+  if (finishRefresh != null) BaseListViewModel._finishRefresh = finishRefresh;
+  if (resetLoadState != null)
+    BaseListViewModel._resetLoadState = resetLoadState;
+  if (finishLoad != null) BaseListViewModel._finishLoad = finishLoad;
+  if (controllerBuild != null)
+    BaseListViewModel._controllerBuild = controllerBuild;
 }
 
 /// 基类的API 声明API
@@ -335,28 +338,37 @@ abstract class BaseListViewModel<M extends BaseModel, E extends BaseEntity, I>
   static int _totalPageNum = 1;
 
   /// 跟上拉刷新 下拉加载 相关配置
-  static ControllerBuild _controllerBuild;
-  static ResetRefreshState _resetRefreshState = (c) => null;
+  static ControllerBuild _controllerBuild = () => null;
+  static ResetRefreshState _resetRefreshState = (c) => {};
   static FinishRefresh _finishRefresh = (c, {bool success, bool noMore}) {};
   static ResetLoadState _resetLoadState = (c) {};
   static FinishLoad _finishLoad = (c, {bool success, bool noMore}) {};
 
-  dynamic _refreshController = _controllerBuild();
+  dynamic _refreshController =
+      _controllerBuild == null ? null : _controllerBuild();
   get refreshController => _refreshController;
 
   /// 重置下拉刷新状态
-  resetRefreshState(controller) => _resetRefreshState(controller);
+  resetRefreshState(controller) {
+    if (_resetRefreshState != null) _resetRefreshState(controller);
+  }
 
   /// 完成下拉刷新
-  finishRefresh(controller, {bool success, bool noMore}) =>
+  finishRefresh(controller, {bool success, bool noMore}) {
+    if (_finishRefresh != null)
       _finishRefresh(controller, success: success, noMore: noMore);
+  }
 
   /// 重置上拉加载状态
-  resetLoadState(controller) => _resetLoadState(controller);
+  resetLoadState(controller) {
+    if (_resetLoadState != null) _resetLoadState(controller);
+  }
 
   /// 完成上拉加载
-  finishLoad(controller, {bool success, bool noMore}) =>
+  finishLoad(controller, {bool success, bool noMore}) {
+    if (_finishLoad != null)
       _finishLoad(controller, success: success, noMore: noMore);
+  }
 
   @protected
   List<I> get list;
