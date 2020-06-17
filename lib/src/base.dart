@@ -4,7 +4,6 @@ import 'package:dio/dio.dart';
 import 'package:fast_event_bus/fast_event_bus.dart';
 import 'package:fast_mvvm/fast_mvvm.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_easyrefresh/easy_refresh.dart';
 import 'package:provider/provider.dart';
 
 import 'common.dart';
@@ -20,6 +19,14 @@ typedef VMBuilder<T extends BaseViewModel> = Widget Function(
 
 typedef VSBuilder<T extends BaseViewModel> = Widget Function(T vm);
 
+typedef ResetRefreshState = void Function(dynamic controller);
+typedef FinishRefresh = void Function(dynamic controller,
+    {bool success, bool noMore});
+typedef ResetLoadState = void Function(dynamic controller);
+typedef FinishLoad = void Function(dynamic controller,
+    {bool success, bool noMore});
+typedef ControllerBuild = dynamic Function();
+
 /// 初始化 配置初始页面全局状态页
 void initMVVM<VM extends BaseViewModel>(
   List<BaseModel> models, {
@@ -28,6 +35,11 @@ void initMVVM<VM extends BaseViewModel>(
   VSBuilder<VM> empty,
   VSBuilder<VM> error,
   VSBuilder<VM> unAuthorized,
+  ResetRefreshState resetRefreshState,
+  FinishRefresh finishRefresh,
+  ResetLoadState resetLoadState,
+  FinishLoad finishLoad,
+  ControllerBuild controllerBuild,
 }) {
   assert(initPage != null);
 
@@ -38,6 +50,11 @@ void initMVVM<VM extends BaseViewModel>(
   _Config.gEmpty = empty;
   _Config.gError = error;
   _Config.gunAuthorized = unAuthorized;
+  BaseListViewModel._resetRefreshState = resetRefreshState;
+  BaseListViewModel._finishRefresh = finishRefresh;
+  BaseListViewModel._resetLoadState = resetLoadState;
+  BaseListViewModel._finishLoad = finishLoad;
+  BaseListViewModel._controllerBuild = controllerBuild;
 }
 
 /// 基类的API 声明API
@@ -318,22 +335,28 @@ abstract class BaseListViewModel<M extends BaseModel, E extends BaseEntity, I>
   static int _totalPageNum = 1;
 
   /// 跟上拉刷新 下拉加载 相关配置
-  dynamic _refreshController = EasyRefreshController();
+  static ControllerBuild _controllerBuild;
+  static ResetRefreshState _resetRefreshState = (c) => null;
+  static FinishRefresh _finishRefresh = (c, {bool success, bool noMore}) {};
+  static ResetLoadState _resetLoadState = (c) {};
+  static FinishLoad _finishLoad = (c, {bool success, bool noMore}) {};
+
+  dynamic _refreshController = _controllerBuild();
   get refreshController => _refreshController;
 
   /// 重置下拉刷新状态
-  resetRefreshState(controller) => controller.resetRefreshState();
+  resetRefreshState(controller) => _resetRefreshState(controller);
 
   /// 完成下拉刷新
   finishRefresh(controller, {bool success, bool noMore}) =>
-      controller.finishRefresh(success: success, noMore: noMore);
+      _finishRefresh(controller, success: success, noMore: noMore);
 
   /// 重置上拉加载状态
-  resetLoadState(controller) => controller.resetLoadState();
+  resetLoadState(controller) => _resetLoadState(controller);
 
   /// 完成上拉加载
   finishLoad(controller, {bool success, bool noMore}) =>
-      controller.finishLoad(success: success, noMore: noMore);
+      _finishLoad(controller, success: success, noMore: noMore);
 
   @protected
   List<I> get list;
@@ -375,9 +398,11 @@ abstract class BaseListViewModel<M extends BaseModel, E extends BaseEntity, I>
       }
     } catch (e, s) {
       finishRefresh(_refreshController, success: false);
-      resetRefreshState(_refreshController);
       handleCatch(e, s);
       return false;
+    } finally {
+      resetLoadState(_refreshController);
+      resetRefreshState(_refreshController);
     }
   }
 
@@ -409,9 +434,11 @@ abstract class BaseListViewModel<M extends BaseModel, E extends BaseEntity, I>
       } catch (e, s) {
         _currentPageNum--;
         finishLoad(_refreshController, success: false);
-        resetLoadState(_refreshController);
         debugPrint('error--->\n' + e.toString());
         debugPrint('stack--->\n' + s.toString());
+      } finally {
+        resetLoadState(_refreshController);
+        resetRefreshState(_refreshController);
       }
     }
   }

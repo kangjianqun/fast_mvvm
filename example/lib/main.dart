@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:fast_mvvm/fast_mvvm.dart';
+import 'package:flutter_easyrefresh/easy_refresh.dart';
 
 import 'article.dart';
 
@@ -36,7 +37,19 @@ class App extends StatefulWidget {
 class _AppState extends State<App> {
   @override
   void initState() {
-    initMVVM([UserModel()]);
+    initMVVM<BaseViewModel>(
+      [UserModel()],
+      controllerBuild: () => EasyRefreshController(),
+      resetRefreshState: (c) =>
+          (c as EasyRefreshController)?.resetRefreshState(),
+      finishRefresh: (c, {bool success, bool noMore}) =>
+          (c as EasyRefreshController)
+              ?.finishRefresh(success: success, noMore: noMore),
+      resetLoadState: (c) => (c as EasyRefreshController)?.resetLoadState(),
+      finishLoad: (c, {bool success, bool noMore}) =>
+          (c as EasyRefreshController)
+              ?.finishLoad(success: success, noMore: noMore),
+    );
     super.initState();
   }
 

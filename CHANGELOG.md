@@ -1,3 +1,7 @@
+## 1.0.9
+
+去掉 flutter_easyrefresh 依赖，initMVVM增加刷新全局配置
+
 ## 1.0.8
 优化的刷新控制，子类可以自己实现控制
 
@@ -8,10 +12,7 @@ BaseListViewModel({params, refreshController})
     _refreshController = refreshController;
   }
 
-resetRefreshState
-finishRefresh
-resetLoadState
-finishLoad
+resetRefreshState｜finishRefresh｜resetLoadState｜finishLoad
 
 ## 1.0.7
 优化代码和注释。
