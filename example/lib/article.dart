@@ -30,11 +30,11 @@ class ArticleVM
   @override
   List<ArticleItem> get list => entity.list;
 
-  @override
-  Future<DataResponse<ArticleEntity>> requestHttp(
-      {bool isLoad, int page, params}) {
-    return model.getArticleList();
-  }
+//  @override
+//  Future<DataResponse<ArticleEntity>> requestHttp(
+//      {bool isLoad, int page, params}) {
+//    return model.getArticleList();
+//  }
 
   @override
   void initResultData() {
@@ -60,11 +60,11 @@ class ArticlePage extends StatelessWidget with BaseView<ArticleVM> {
     return rootRefresh
         ? ViewConfig<ArticleVM>(
             vm: ArticleVM(),
-            empty: (vm) {
-              return Text("data");
-            })
+            empty: (vm) => Text("data"),
+          )
         : ViewConfig<ArticleVM>.noRoot(
             vm: ArticleVM(),
+            empty: (vm) => Text("data"),
           );
   }
 

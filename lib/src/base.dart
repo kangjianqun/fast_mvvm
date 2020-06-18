@@ -573,7 +573,7 @@ ChangeNotifierProvider _availableCNP<T extends BaseViewModel>(
 
 /// 页面状态展示 空 正常 错误 忙碌
 Widget _viewState<VM extends BaseViewModel>(
-    ViewConfig data, Widget Function(Widget state) builder) {
+    ViewConfig<VM> data, Widget Function(Widget state) builder) {
   VM vm = data.vm;
   var bgColor = data.color;
   var checkEmpty = data.checkEmpty;
@@ -635,7 +635,7 @@ Widget _viewState<VM extends BaseViewModel>(
 
 /// root 根节点加工 根节点是否需要刷新，不刷新就执行一次刷新 更新第一次状态变化
 Widget _root<VM extends BaseViewModel>(
-    BuildContext context, ViewConfig config, VMBuilder builder) {
+    BuildContext context, ViewConfig<VM> config, VMBuilder<VM> builder) {
   /// 是否根节点需要刷新
   return _availableCNP<VM>(
     context,
@@ -649,8 +649,8 @@ Widget _root<VM extends BaseViewModel>(
         config.vm._activeGlobalRefresh = false;
         return true;
       },
-      builder: (ctx, value, child) =>
-          _viewState(config, (state) => builder(ctx, config.vm, child, state)),
+      builder: (ctx, value, child) => _viewState<VM>(
+          config, (state) => builder(ctx, config.vm, child, state)),
     ),
   );
 }
