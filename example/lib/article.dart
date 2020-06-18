@@ -58,8 +58,14 @@ class ArticlePage extends StatelessWidget with BaseView<ArticleVM> {
   @override
   ViewConfig<ArticleVM> initConfig(BuildContext context) {
     return rootRefresh
-        ? ViewConfig(vm: ArticleVM())
-        : ViewConfig.noRoot(vm: ArticleVM());
+        ? ViewConfig<ArticleVM>(
+            vm: ArticleVM(),
+            empty: (vm) {
+              return Text("data");
+            })
+        : ViewConfig<ArticleVM>.noRoot(
+            vm: ArticleVM(),
+          );
   }
 
   @override
