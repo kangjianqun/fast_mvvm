@@ -22,6 +22,11 @@ class ArticleItem {
 
 class ArticleVM
     extends BaseListViewModel<UserModel, ArticleEntity, ArticleItem> {
+  ArticleVM(this.isLoadData);
+  bool isLoadData = true;
+
+  /// 首次加载
+  bool firstLoad = true;
   ValueNotifier<String> vnTime = ValueNotifier("暂无");
 
   @override
@@ -29,12 +34,16 @@ class ArticleVM
 
   @override
   List<ArticleItem> get list => entity.list;
-
-//  @override
-//  Future<DataResponse<ArticleEntity>> requestHttp(
-//      {bool isLoad, int page, params}) {
-//    return model.getArticleList();
-//  }
+  @override
+  Future<DataResponse<ArticleEntity>> requestHttp(
+      {bool isLoad, int page, params}) {
+    /// 判断是否加载数据， 测试状态页用
+    if (!isLoadData && firstLoad) {
+      firstLoad = false;
+      return null;
+    }
+    return model.getArticleList();
+  }
 
   @override
   void initResultData() {
@@ -50,22 +59,24 @@ class ArticleVM
 }
 
 class ArticlePage extends StatelessWidget with BaseView<ArticleVM> {
-  const ArticlePage(this.rootRefresh, {Key key}) : super(key: key);
+  const ArticlePage(
+    this.rootRefresh, {
+    Key key,
+    this.configState = false,
+    this.loadData = true,
+  }) : super(key: key);
 
   /// 是否全局刷新
   final bool rootRefresh;
+  final bool configState;
+  final bool loadData;
 
   @override
   ViewConfig<ArticleVM> initConfig(BuildContext context) {
+    var _empty = configState ? (vm) => Center(child: Text("单独配置：empty")) : null;
     return rootRefresh
-        ? ViewConfig<ArticleVM>(
-            vm: ArticleVM(),
-            empty: (vm) => Text("data"),
-          )
-        : ViewConfig<ArticleVM>.noRoot(
-            vm: ArticleVM(),
-            empty: (vm) => Text("data"),
-          );
+        ? ViewConfig<ArticleVM>(vm: ArticleVM(loadData), empty: _empty)
+        : ViewConfig<ArticleVM>.noRoot(vm: ArticleVM(loadData), empty: _empty);
   }
 
   @override
@@ -84,7 +95,7 @@ class ArticlePage extends StatelessWidget with BaseView<ArticleVM> {
                   MaterialButton(
                     onPressed: vm.modifyFistTime,
                     color: Colors.white,
-                    child: Text("修改第一个Item时间"),
+                    child: Text("修改第一个Item时间,测试全局刷新"),
                   ),
                   ValueListenableBuilder<String>(
                     valueListenable: vm.vnTime,

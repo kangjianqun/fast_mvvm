@@ -232,15 +232,21 @@ abstract class BaseViewModel<M extends BaseModel, E extends BaseEntity>
 
   bool isHttp() => true;
 
-  /// 进入页面isInit loading
+  /// 首次进入页面，  主动页面刷新如果开启本布局不刷新[ViewConfig.noRoot]
+  /// [rootRefresh] 需要根布局刷新 设置 true
   Future<void> viewRefresh({
     dynamic params,
     bool notifier = true,
     bool busy = true,
+    bool rootRefresh = false,
   }) async {
+    if (rootRefresh) _activeGlobalRefresh = rootRefresh;
+
     if (busy) setBusy(true);
+
     bool result = false;
     result = await _request(param: params);
+    if (rootRefresh && busy) _activeGlobalRefresh = true;
     _notifyIntercept = !notifier;
 //    LogUtil.printLog("notifier : $notifier _notifyIntercept:$_notifyIntercept");
     if (!result) {
@@ -422,8 +428,7 @@ abstract class BaseListViewModel<M extends BaseModel, E extends BaseEntity, I>
 
   /// 下拉刷新
   Future<void> pullRefresh({bool globalRefresh = true}) async {
-    _activeGlobalRefresh = globalRefresh;
-    await viewRefresh(busy: false);
+    await viewRefresh(busy: false, rootRefresh: globalRefresh);
   }
 
   /// 上拉加载更多
@@ -587,19 +592,24 @@ Widget _viewState<VM extends BaseViewModel>(
 
   Widget _widget;
 
+  /// 页面刷新的方法
+
   /// vm空 ｜｜ 需要验证空并且VM确实没有值
   if (vm == null || checkEmpty && vm.empty) {
     _widget = empty ??
         Container(
           color: bgColor,
-          child: ViewStateEmptyWidget(onTap: () => vm.viewRefresh()),
+          child: ViewStateEmptyWidget(
+              onTap: () => vm.viewRefresh(rootRefresh: true)),
         );
   } else if (vm.busy) {
     _widget = busy ?? ViewStateBusyWidget(backgroundColor: bgColor);
   } else if (vm.error) {
-    _widget = error ?? ViewStateWidget(onTap: () => vm.viewRefresh());
+    _widget = error ??
+        ViewStateWidget(onTap: () => vm.viewRefresh(rootRefresh: true));
   } else if (vm.unAuthorized) {
-    _widget = un ?? ViewStateUnAuthWidget(onTap: () => vm.viewRefresh());
+    _widget = un ??
+        ViewStateUnAuthWidget(onTap: () => vm.viewRefresh(rootRefresh: true));
   }
 
   Widget view = builder(_widget);
