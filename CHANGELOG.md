@@ -1,3 +1,8 @@
+## 1.1.4
+BaseView新增获取对应ViewModel方法 VM vm(BuildContext context)；
+
+BaseViewOfState新增获取对应ViewModel方法 VM vm()；
+
 ## 1.1.3
 优化根布局刷新，修复当开启根布局不刷新后，页面为空或者数据错误，点击刷新没有效果。
 增加demo状态页配置案例。

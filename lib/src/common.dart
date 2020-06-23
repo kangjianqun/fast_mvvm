@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/widgets.dart';
+import 'package:provider/provider.dart';
 
 import 'base.dart';
 
@@ -69,3 +70,7 @@ _addModel(BaseModel model) => _mList[model.runtimeType.toString()] = model;
 
 /// 全局Model
 M getModelGlobal<M extends BaseModel>() => _mList[M.toString()];
+
+/// 得到通知者
+T getVM<T extends ChangeNotifier>(BuildContext ctx, {bool listen: false}) =>
+    Provider.of<T>(ctx, listen: listen);

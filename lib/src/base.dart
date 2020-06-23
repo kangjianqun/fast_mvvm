@@ -675,6 +675,9 @@ Widget _root<VM extends BaseViewModel>(
 
 /// 基类 view 扩展[StatelessWidget]
 mixin BaseView<VM extends BaseViewModel> on StatelessWidget {
+  /// 得到[VM]  通过[getVM]实现
+  VM vm(BuildContext context) => getVM(context);
+
   /// 初始化配置
   @protected
   ViewConfig<VM> initConfig(BuildContext context);
@@ -710,6 +713,9 @@ mixin BaseView<VM extends BaseViewModel> on StatelessWidget {
 mixin BaseViewOfState<T extends StatefulWidget, VM extends BaseViewModel>
     on State<T> {
   ViewConfig<VM> _config;
+
+  /// 得到[VM]
+  VM vm() => _config.vm;
 
   /// VM 相关
   @protected
