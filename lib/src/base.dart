@@ -60,6 +60,8 @@ void initMVVM<VM extends BaseViewModel>(
     BaseListViewModel._controllerBuild = controllerBuild;
 }
 
+// model 接口
+
 /// 基类的API 声明API
 mixin BaseRepo {}
 
@@ -68,6 +70,8 @@ class BaseModel with BaseRepo {}
 
 /// 基类Entity JSON数据实体
 class BaseEntity {}
+
+// ViewModel 数据绑定，业务逻辑 主要是[BaseViewModel]和[BaseListViewModel]
 
 /// ViewModel的状态 控制页面基础显示
 enum ViewModelState { idle, busy, empty, error, unAuthorized }
@@ -228,11 +232,13 @@ abstract class BaseViewModel<M extends BaseModel, E extends BaseEntity>
   /// 保存VM
   bool isSaveVM() => false;
 
+  /// 存放需要[dispose]的对象
   List waitDispose() => [];
 
+  /// 数据获取方式   是否是通过网络获取
   bool isHttp() => true;
 
-  /// 首次进入页面，  主动页面刷新如果开启本布局不刷新[ViewConfig.noRoot]
+  /// 首次进入页面，主动调用页面刷新如果开启根布局不刷新设置[ViewConfig.noRoot]
   /// [rootRefresh] 需要根布局刷新 设置 true
   Future<void> viewRefresh({
     dynamic params,
@@ -257,7 +263,7 @@ abstract class BaseViewModel<M extends BaseModel, E extends BaseEntity>
     }
   }
 
-  /// 请求数据
+  /// 请求数据 返回数据是否正常
   Future<bool> _request({param}) async {
     try {
       var data = await _httpOrData(false, BaseListViewModel.pageFirst, param);
@@ -391,11 +397,11 @@ abstract class BaseListViewModel<M extends BaseModel, E extends BaseEntity, I>
     return judgeNull(data);
   }
 
-  /// 判断页面是否为空
+  /// 判断数据是否为空  可自行实现逻辑
   @protected
   bool judgeNull(DataResponse<E> data) => list == null || list.isEmpty;
 
-  /// 拼接数据
+  /// 拼接数据 当上拉加载后拼接新数据
   void jointList(E newEntity);
 
   /// 请求数据后，子类初始数据
@@ -470,6 +476,8 @@ abstract class BaseListViewModel<M extends BaseModel, E extends BaseEntity, I>
     super.dispose();
   }
 }
+
+// View 页面 主要是[BaseView]和[BaseViewOfState]
 
 /// 基类配置，配置全局默认状态页
 class _Config<VM extends BaseViewModel> {
