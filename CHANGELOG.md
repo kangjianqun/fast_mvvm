@@ -1,3 +1,13 @@
+## 1.1.5
+
+新增公共方法getVM(),得到ViewModel全局调用的语法糖。
+
+initMVVM 初始化新增参数 DataFromNetworkOrDatabase ，
+
+数据来源  网络或者数据库 [true] : 网络 --- [false] ：数据库
+
+场景：网络无连接 页面数据缓存在数据库  切换数据来源，改从数据库取数据
+
 ## 1.1.4
 BaseView新增获取对应ViewModel方法 VM vm(BuildContext context)；
 

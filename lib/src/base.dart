@@ -10,8 +10,9 @@ import 'common.dart';
 import 'widget.dart';
 
 // 基于MVVM架构设计
-// Model 数据业务接口 数据来源服务器或本地。
-// ViewModel 给view提供数据 调用model
+// Entity 数据实体类
+// Model 业务接口 数据来源服务器或本地数据库缓存。
+// ViewModel 给View提供数据 调用Model操作数据 刷新View
 // View 视图页面
 
 typedef VMBuilder<T extends BaseViewModel> = Widget Function(
@@ -27,10 +28,15 @@ typedef FinishLoad = void Function(dynamic controller,
     {bool success, bool noMore});
 typedef ControllerBuild = dynamic Function();
 
+/// 数据来源  网络或者数据库 [true] : 网络 --- [false] ：数据库
+/// 场景 网络无连接 页面数据缓存在数据库   切换数据来源，改从数据库取数据
+typedef DataFromNetworkOrDatabase = bool Function(BaseViewModel vm);
+
 /// 初始化 配置初始页面全局状态页
 void initMVVM<VM extends BaseViewModel>(
   List<BaseModel> models, {
   int initPage = 1,
+  DataFromNetworkOrDatabase dataOfHttpOrData,
   VSBuilder<VM> busy,
   VSBuilder<VM> empty,
   VSBuilder<VM> error,
@@ -50,6 +56,10 @@ void initMVVM<VM extends BaseViewModel>(
   _Config.gEmpty = empty;
   _Config.gError = error;
   _Config.gunAuthorized = unAuthorized;
+
+  dataOfHttpOrData ??= (vm) => true;
+  BaseViewModel._dataFromNetworkOrDatabase = dataOfHttpOrData;
+
   if (resetRefreshState != null)
     BaseListViewModel._resetRefreshState = resetRefreshState;
   if (finishRefresh != null) BaseListViewModel._finishRefresh = finishRefresh;
@@ -235,8 +245,10 @@ abstract class BaseViewModel<M extends BaseModel, E extends BaseEntity>
   /// 存放需要[dispose]的对象
   List waitDispose() => [];
 
-  /// 数据获取方式   是否是通过网络获取
-  bool isHttp() => true;
+  static DataFromNetworkOrDatabase _dataFromNetworkOrDatabase;
+
+  /// 数据获取方式 是否是通过网络获取  可全局配置，子类覆写优先级最高
+  bool isHttp() => _dataFromNetworkOrDatabase(this);
 
   /// 首次进入页面，主动调用页面刷新如果开启根布局不刷新设置[ViewConfig.noRoot]
   /// [rootRefresh] 需要根布局刷新 设置 true
