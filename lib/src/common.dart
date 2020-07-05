@@ -10,6 +10,7 @@ class DataResponse<T> {
   Response response;
   int totalPageNum;
   get data => response.data;
+  int get code => response.statusCode;
 
   DataResponse({
     @required this.entity,

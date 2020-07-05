@@ -20,6 +20,81 @@ Widget vmEmptyView<T extends BaseViewModel>(
   );
 }
 
+/// 上级
+enum EmptySizeType {
+  Not, // 无
+  Expanded,
+  Size, // 确定
+}
+
+/// 内容容器 判断 List 或者 Grid 是否为空 显示内容或加载空视图
+class ListOrGridEmpty extends StatelessWidget {
+  const ListOrGridEmpty({
+    Key key,
+    @required this.vm,
+    @required this.childBuild,
+    this.emptyBuild,
+    this.emptySizeType = EmptySizeType.Not,
+  })  : height = null,
+        width = null,
+        super(key: key);
+
+  const ListOrGridEmpty.max({
+    Key key,
+    @required this.vm,
+    @required this.childBuild,
+    this.emptyBuild,
+    this.emptySizeType = EmptySizeType.Expanded,
+  })  : height = null,
+        width = null,
+        super(key: key);
+
+  const ListOrGridEmpty.height({
+    Key key,
+    @required this.vm,
+    @required this.childBuild,
+    @required this.height,
+    @required this.width,
+    this.emptyBuild,
+    this.emptySizeType = EmptySizeType.Size,
+  }) : super(key: key);
+
+  final BaseListViewModel vm;
+  final Function() childBuild;
+  final VSBuilder<BaseListViewModel> emptyBuild;
+  final EmptySizeType emptySizeType;
+  final num height;
+  final num width;
+
+  /// 空视图 优先级
+  Widget _emptyWidget() {
+    return emptyBuild != null
+        ? emptyBuild(vm)
+        : Config.gEmpty != null
+            ? Config.gEmpty(vm)
+            : ViewStateEmptyWidget(
+                onTap: () => vm.viewRefresh(rootRefresh: true));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // ignore: invalid_use_of_protected_member
+    var empty = vm.list == null || vm.list.length <= 0;
+    Widget view = empty ? _emptyWidget() : childBuild();
+    switch (emptySizeType) {
+      case EmptySizeType.Not:
+        break;
+      case EmptySizeType.Expanded:
+        view = Expanded(child: view);
+        break;
+      case EmptySizeType.Size:
+        Container(height: height, width: width, child: view);
+        break;
+    }
+    return view;
+  }
+}
+
 /// 用于未登录等权限不够,需要跳转授权页面
 class UnAuthorizedException implements Exception {
   const UnAuthorizedException();

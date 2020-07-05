@@ -33,7 +33,7 @@ class ArticleVM
   void jointList(ArticleEntity newEntity) => entity.list.addAll(newEntity.list);
 
   @override
-  List<ArticleItem> get list => entity.list;
+  List<ArticleItem> get list => entity?.list;
   @override
   Future<DataResponse<ArticleEntity>> requestHttp(
       {bool isLoad, int page, params}) {
@@ -108,20 +108,33 @@ class ArticlePage extends StatelessWidget with BaseView<ArticleVM> {
               ),
             ),
       body: state ??
-          EasyRefresh(
-            controller: vm.refreshController,
-            onLoad: vm.loadMore,
-            onRefresh: vm.pullRefresh,
-            child: ListView.builder(
-              itemCount: vm.list.length,
-              itemBuilder: (ctx, index) {
-                return Selector<ArticleVM, ArticleItem>(
-                  selector: (_, aVM) => aVM.list[index],
-                  shouldRebuild: (pre, next) => pre == next,
-                  builder: (_, ArticleItem value, __) => _item(value),
-                );
-              },
-            ),
+          Column(
+            children: <Widget>[
+              Container(
+                height: 100,
+                color: Colors.red,
+                alignment: Alignment.center,
+                child: Text("假装这是广告，用来测试ListOrGridEmpty"),
+              ),
+              ListOrGridEmpty.max(
+                vm: vm,
+                childBuild: () => EasyRefresh(
+                  controller: vm.refreshController,
+                  onLoad: vm.loadMore,
+                  onRefresh: vm.pullRefresh,
+                  child: ListView.builder(
+                    itemCount: vm.list.length,
+                    itemBuilder: (ctx, index) {
+                      return Selector<ArticleVM, ArticleItem>(
+                        selector: (_, aVM) => aVM.list[index],
+                        shouldRebuild: (pre, next) => pre == next,
+                        builder: (_, ArticleItem value, __) => _item(value),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ],
           ),
     );
   }
@@ -149,3 +162,25 @@ class ArticlePage extends StatelessWidget with BaseView<ArticleVM> {
     );
   }
 }
+
+// 测试 The class doesn't have a concrete implementation of the super-invoked member 'build'.
+//class AAA extends StatefulWidget {
+//  @override
+//  _AAAState createState() => _AAAState();
+//}
+//
+//class _AAAState extends State<AAA> with BaseViewOfState<AAA, SelectVM> {
+//
+//  @override
+//  ViewConfig<SelectVM> initConfig(BuildContext context) {
+//    // TODO: implement initConfig
+//    throw UnimplementedError();
+//  }
+//
+//  @override
+//  Widget vmBuild(
+//      BuildContext context, SelectVM vm, Widget child, Widget state) {
+//    // TODO: implement vmBuild
+//    throw UnimplementedError();
+//  }
+//}

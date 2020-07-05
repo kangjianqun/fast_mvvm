@@ -52,10 +52,10 @@ void initMVVM<VM extends BaseViewModel>(
   /// 载入model 后期调用API
   addModel(list: models);
   BaseListViewModel.pageFirst = initPage;
-  _Config.gBusy = busy;
-  _Config.gEmpty = empty;
-  _Config.gError = error;
-  _Config.gunAuthorized = unAuthorized;
+  Config.gBusy = busy;
+  Config.gEmpty = empty;
+  Config.gError = error;
+  Config.gunAuthorized = unAuthorized;
 
   dataOfHttpOrData ??= (vm) => true;
   BaseViewModel._dataFromNetworkOrDatabase = dataOfHttpOrData;
@@ -94,8 +94,8 @@ abstract class BaseViewModel<M extends BaseModel, E extends BaseEntity>
   /// FooModel():super(viewState:ViewState.busy);
   BaseViewModel({ViewModelState viewState, this.defaultOfParams})
       : _viewState = viewState ?? ViewModelState.idle {
-    init(false);
-    Future.delayed(Duration(seconds: 1), () => init(true));
+    _init(false);
+    Future.delayed(Duration(seconds: 1), () => _init(true));
   }
 
   /// model
@@ -111,6 +111,9 @@ abstract class BaseViewModel<M extends BaseModel, E extends BaseEntity>
 
   /// 主动全局刷新 用在首次跟下拉刷新和上拉加载
   bool _activeGlobalRefresh = true;
+
+  /// 判断List 空的简便方法
+  bool checkEmpty = true;
 
   /// 防止页面销毁后,异步任务才完成,导致报错
   bool _disposed = false;
@@ -228,16 +231,19 @@ abstract class BaseViewModel<M extends BaseModel, E extends BaseEntity>
     super.dispose();
   }
 
-  @mustCallSuper
-  void init(bool await) {
+  void _init(bool await) {
     if (!await) {
       model = getModel() ?? getModelGlobal<M>();
+      init();
 //      if (isSaveVM()) _addVM(this);
     } else {
       _eventButAddInit(portMap);
       _disposeInit();
     }
   }
+
+  @protected
+  void init() {}
 
   /// 保存VM
   bool isSaveVM() => false;
@@ -249,6 +255,11 @@ abstract class BaseViewModel<M extends BaseModel, E extends BaseEntity>
 
   /// 数据获取方式 是否是通过网络获取  可全局配置，子类覆写优先级最高
   bool isHttp() => _dataFromNetworkOrDatabase(this);
+
+  /// 页面刷新 默认全局刷新，并不显示加载过程
+  Future<void> pageRefresh({bool busy: false, bool globalRefresh: true}) {
+    return viewRefresh(busy: busy, rootRefresh: globalRefresh);
+  }
 
   /// 首次进入页面，主动调用页面刷新如果开启根布局不刷新设置[ViewConfig.noRoot]
   /// [rootRefresh] 需要根布局刷新 设置 true
@@ -279,7 +290,7 @@ abstract class BaseViewModel<M extends BaseModel, E extends BaseEntity>
   Future<bool> _request({param}) async {
     try {
       var data = await _httpOrData(false, BaseListViewModel.pageFirst, param);
-      if (data == null || data.entity == null) {
+      if (checkEmpty && (data == null || data.entity == null)) {
         return false;
       } else {
         entity = data.entity;
@@ -411,7 +422,8 @@ abstract class BaseListViewModel<M extends BaseModel, E extends BaseEntity, I>
 
   /// 判断数据是否为空  可自行实现逻辑
   @protected
-  bool judgeNull(DataResponse<E> data) => list == null || list.isEmpty;
+  bool judgeNull(DataResponse<E> data) =>
+      !checkEmpty ? false : list == null || list.isEmpty;
 
   /// 拼接数据 当上拉加载后拼接新数据
   void jointList(E newEntity);
@@ -446,7 +458,7 @@ abstract class BaseListViewModel<M extends BaseModel, E extends BaseEntity, I>
 
   /// 下拉刷新
   Future<void> pullRefresh({bool globalRefresh = true}) async {
-    await viewRefresh(busy: false, rootRefresh: globalRefresh);
+    return pageRefresh(busy: false, globalRefresh: globalRefresh);
   }
 
   /// 上拉加载更多
@@ -492,7 +504,7 @@ abstract class BaseListViewModel<M extends BaseModel, E extends BaseEntity, I>
 // View 页面 主要是[BaseView]和[BaseViewOfState]
 
 /// 基类配置，配置全局默认状态页
-class _Config<VM extends BaseViewModel> {
+class Config<VM extends BaseViewModel> {
   static VSBuilder gBusy;
   static VSBuilder gEmpty;
   static VSBuilder gError;
@@ -503,7 +515,7 @@ class _Config<VM extends BaseViewModel> {
   VSBuilder<VM> error;
   VSBuilder<VM> unAuthorized;
 
-  _Config(this.busy, this.empty, this.error, this.unAuthorized) {
+  Config(this.busy, this.empty, this.error, this.unAuthorized) {
     this.busy ??= gBusy;
     this.empty ??= gEmpty;
     this.error ??= gError;
@@ -512,7 +524,7 @@ class _Config<VM extends BaseViewModel> {
 }
 
 /// view层 配置用类
-class ViewConfig<VM extends BaseViewModel> extends _Config<VM> {
+class ViewConfig<VM extends BaseViewModel> extends Config<VM> {
   ViewConfig({
     @required this.vm,
     this.child,
@@ -600,6 +612,8 @@ ChangeNotifierProvider _availableCNP<T extends BaseViewModel>(
 Widget _viewState<VM extends BaseViewModel>(
     ViewConfig<VM> data, Widget Function(Widget state) builder) {
   VM vm = data.vm;
+  vm.checkEmpty = data.checkEmpty;
+
   var bgColor = data.color;
   var checkEmpty = data.checkEmpty;
   var state = data.state;
@@ -705,10 +719,10 @@ mixin BaseView<VM extends BaseViewModel> on StatelessWidget {
   }
 
   /// 不要使用  推荐使用 [vmBuild]
-  @override
   @deprecated
+  @override
   Widget build(BuildContext ctx) {
-//    LogUtil.printLog("build:----" + this.runtimeType.toString());
+//    print('---- BaseViewModel build');
     var config = initConfig(ctx);
     if (config == null) throw "initConfig 方法 返回空值";
 
@@ -750,9 +764,10 @@ mixin BaseViewOfState<T extends StatefulWidget, VM extends BaseViewModel>
   }
 
   /// 不要使用  推荐使用 [vmBuild]
+  @deprecated
   @override
-  Widget build(BuildContext context) {
-    super.build(context);
+  Widget build(BuildContext ctx) {
+//    super.build(context);
 //    LogUtil.printLog("build:----" + this.runtimeType.toString());
     return _root<VM>(context, _config, vmBuild);
   }

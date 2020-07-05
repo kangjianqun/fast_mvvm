@@ -1,12 +1,14 @@
+## 1.1.6
+修复 The class doesn't have a concrete implementation of the super-invoked member 'build'. 错误
+
+优化 ViewConfig 配置 checkEmpty 应用到BaeViewModel上面；
+优化 刷新页面便捷方法；
+新增 initPage 功能；
+新增 ListOrGridEmpty；
+
 ## 1.1.5
-
 新增公共方法getVM(),得到ViewModel全局调用的语法糖。
-
-initMVVM 初始化新增参数 DataFromNetworkOrDatabase ，
-
-数据来源  网络或者数据库 [true] : 网络 --- [false] ：数据库
-
-场景：网络无连接 页面数据缓存在数据库  切换数据来源，改从数据库取数据
+initMVVM 初始化新增参数 DataFromNetworkOrDatabase
 
 ## 1.1.4
 BaseView新增获取对应ViewModel方法 VM vm(BuildContext context)；
