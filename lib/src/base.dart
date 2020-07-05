@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:fast_event_bus/fast_event_bus.dart';
-import 'package:fast_mvvm/fast_mvvm.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 
@@ -52,10 +51,10 @@ void initMVVM<VM extends BaseViewModel>(
   /// 载入model 后期调用API
   addModel(list: models);
   BaseListViewModel.pageFirst = initPage;
-  Config.gBusy = busy;
-  Config.gEmpty = empty;
-  Config.gError = error;
-  Config.gunAuthorized = unAuthorized;
+  ViewConfig.gBusy = busy;
+  ViewConfig.gEmpty = empty;
+  ViewConfig.gError = error;
+  ViewConfig.gunAuthorized = unAuthorized;
 
   dataOfHttpOrData ??= (vm) => true;
   BaseViewModel._dataFromNetworkOrDatabase = dataOfHttpOrData;
@@ -503,28 +502,8 @@ abstract class BaseListViewModel<M extends BaseModel, E extends BaseEntity, I>
 
 // View 页面 主要是[BaseView]和[BaseViewOfState]
 
-/// 基类配置，配置全局默认状态页
-class Config<VM extends BaseViewModel> {
-  static VSBuilder gBusy;
-  static VSBuilder gEmpty;
-  static VSBuilder gError;
-  static VSBuilder gunAuthorized;
-
-  VSBuilder<VM> busy;
-  VSBuilder<VM> empty;
-  VSBuilder<VM> error;
-  VSBuilder<VM> unAuthorized;
-
-  Config(this.busy, this.empty, this.error, this.unAuthorized) {
-    this.busy ??= gBusy;
-    this.empty ??= gEmpty;
-    this.error ??= gError;
-    this.unAuthorized ??= gunAuthorized;
-  }
-}
-
-/// view层 配置用类
-class ViewConfig<VM extends BaseViewModel> extends Config<VM> {
+/// view层 配置用类  配置全局默认状态页
+class ViewConfig<VM extends BaseViewModel> {
   ViewConfig({
     @required this.vm,
     this.child,
@@ -533,12 +512,13 @@ class ViewConfig<VM extends BaseViewModel> extends Config<VM> {
     this.checkEmpty = true,
     this.state,
     this.value = false,
-    VSBuilder<VM> busy,
-    VSBuilder<VM> empty,
-    VSBuilder<VM> error,
-    VSBuilder<VM> unAuthorized,
-  })  : this.root = true,
-        super(busy, empty, error, unAuthorized);
+    this.busy,
+    this.empty,
+    this.error,
+    this.unAuthorized,
+  }) : this.root = true {
+    setViewState();
+  }
 
   ViewConfig.value({
     @required this.vm,
@@ -548,12 +528,13 @@ class ViewConfig<VM extends BaseViewModel> extends Config<VM> {
     this.checkEmpty = true,
     this.state,
     this.value = true,
-    VSBuilder<VM> busy,
-    VSBuilder<VM> empty,
-    VSBuilder<VM> error,
-    VSBuilder<VM> unAuthorized,
-  })  : this.root = true,
-        super(busy, empty, error, unAuthorized);
+    this.busy,
+    this.empty,
+    this.error,
+    this.unAuthorized,
+  }) : this.root = true {
+    setViewState();
+  }
 
   ViewConfig.noRoot({
     @required this.vm,
@@ -563,12 +544,13 @@ class ViewConfig<VM extends BaseViewModel> extends Config<VM> {
     this.checkEmpty = true,
     this.state,
     this.value = false,
-    VSBuilder<VM> busy,
-    VSBuilder<VM> empty,
-    VSBuilder<VM> error,
-    VSBuilder<VM> unAuthorized,
-  })  : this.root = false,
-        super(busy, empty, error, unAuthorized);
+    this.busy,
+    this.empty,
+    this.error,
+    this.unAuthorized,
+  }) : this.root = false {
+    setViewState();
+  }
 
   /// VM
   VM vm;
@@ -592,6 +574,23 @@ class ViewConfig<VM extends BaseViewModel> extends Config<VM> {
 
   /// 页面变化控制  可以被其他页面控制刷新
   int state;
+
+  static VSBuilder gBusy;
+  static VSBuilder gEmpty;
+  static VSBuilder gError;
+  static VSBuilder gunAuthorized;
+
+  VSBuilder<VM> busy;
+  VSBuilder<VM> empty;
+  VSBuilder<VM> error;
+  VSBuilder<VM> unAuthorized;
+
+  void setViewState() {
+    this.busy ??= gBusy;
+    this.empty ??= gEmpty;
+    this.error ??= gError;
+    this.unAuthorized ??= gunAuthorized;
+  }
 }
 
 /// 获取可用的监听 [ChangeNotifierProvider.value] 或者 [ChangeNotifierProvider]

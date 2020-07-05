@@ -70,8 +70,8 @@ class ListOrGridEmpty extends StatelessWidget {
   Widget _emptyWidget() {
     return emptyBuild != null
         ? emptyBuild(vm)
-        : Config.gEmpty != null
-            ? Config.gEmpty(vm)
+        : ViewConfig.gEmpty != null
+            ? ViewConfig.gEmpty(vm)
             : ViewStateEmptyWidget(
                 onTap: () => vm.viewRefresh(rootRefresh: true));
   }

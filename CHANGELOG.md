@@ -1,3 +1,6 @@
+## 1.17
+优化 ViewConfig 配置
+
 ## 1.1.6
 修复 The class doesn't have a concrete implementation of the super-invoked member 'build'. 错误
 
