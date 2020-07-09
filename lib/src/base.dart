@@ -14,17 +14,28 @@ import 'widget.dart';
 // ViewModel 给View提供数据 调用Model操作数据 刷新View
 // View 视图页面
 
+/// page build 的替换方法
 typedef VMBuilder<T extends BaseViewModel> = Widget Function(
     BuildContext context, T viewModel, Widget child, Widget state);
 
+/// page 状态页
 typedef VSBuilder<T extends BaseViewModel> = Widget Function(T vm);
 
+/// 上拉加载 下拉刷新 重置刷新状态方法
 typedef ResetRefreshState = void Function(dynamic controller);
+
+/// 上拉加载 下拉刷新 完成刷新方法
 typedef FinishRefresh = void Function(dynamic controller,
     {bool success, bool noMore});
+
+/// 上拉加载 下拉刷新 重置加载状态方法
 typedef ResetLoadState = void Function(dynamic controller);
+
+/// 上拉加载 下拉刷新 完成加载方法
 typedef FinishLoad = void Function(dynamic controller,
     {bool success, bool noMore});
+
+/// 上拉加载 下拉刷新的控制器
 typedef ControllerBuild = dynamic Function();
 
 /// 数据来源  网络或者数据库 [true] : 网络 --- [false] ：数据库
@@ -176,24 +187,17 @@ abstract class BaseViewModel<M extends BaseModel, E extends BaseEntity>
   /// 端口 key 跟 回调监听
   Map<String, EventListen> get portMap => Map<String, EventListen>();
 
-  /// 绑定端口跟回调
-  void _eventButBindListen(String key, EventListen listen) {
-    EventBus.getDefault().register(key, listen);
-  }
-
   /// 绑定初始化 大量绑定
   void _eventButAddInit(Map<String, EventListen> portMap) {
-    portMap?.forEach((key, callback) {
-      _eventButBindListen(key, callback);
-    });
+    portMap?.forEach((key, callback) => eventButAdd(key, callback));
   }
 
   /// 端口删除
-  void eventButDelete(String key) {
-    EventBus.getDefault().unregister(key);
+  bool eventButDelete(String key) {
+    return EventBus.getDefault().unregister(key);
   }
 
-  /// 端口添加
+  /// 端口添加 绑定端口跟回调
   @mustCallSuper
   bool eventButAdd(String key, EventListen listen) {
     portMap.update(key, (l) => listen, ifAbsent: () => listen);
@@ -422,6 +426,7 @@ abstract class BaseListViewModel<M extends BaseModel, E extends BaseEntity, I>
       _finishLoad(controller, success: success, noMore: noMore);
   }
 
+  /// list 数据 [ListOrGridEmpty] 可以配置使用
   List<I> get list;
 
   /// 验证数据
@@ -509,122 +514,15 @@ abstract class BaseListViewModel<M extends BaseModel, E extends BaseEntity, I>
   @override
   void dispose() {
     try {
-      _refreshController.dispose();
-    } catch (e) {}
+      if (_refreshController != null) _refreshController.dispose();
+    } catch (e) {} finally {
+      _refreshController = null;
+    }
     super.dispose();
   }
 }
 
 // View 页面 主要是[BaseView]和[BaseViewOfState]
-
-/// view层 配置用类  配置全局默认状态页
-class ViewConfig<VM extends BaseViewModel> {
-  ViewConfig({
-    @required this.vm,
-    this.child,
-    this.color,
-    this.load = true,
-    this.checkEmpty = true,
-    this.state,
-    this.value = false,
-    this.busy,
-    this.empty,
-    this.error,
-    this.unAuthorized,
-  }) : this.root = true {
-    setViewState();
-  }
-
-  ViewConfig.value({
-    @required this.vm,
-    this.child,
-    this.color,
-    this.load = false,
-    this.checkEmpty = true,
-    this.state,
-    this.value = true,
-    this.busy,
-    this.empty,
-    this.error,
-    this.unAuthorized,
-  }) : this.root = true {
-    setViewState();
-  }
-
-  ViewConfig.noRoot({
-    @required this.vm,
-    this.child,
-    this.color,
-    this.load = true,
-    this.checkEmpty = true,
-    this.state,
-    this.value = false,
-    this.busy,
-    this.empty,
-    this.error,
-    this.unAuthorized,
-  }) : this.root = false {
-    setViewState();
-  }
-
-  /// VM
-  VM vm;
-
-  Widget child;
-
-  /// 背景颜色
-  Color color;
-
-  /// 加载
-  bool load;
-
-  /// 是否根布局刷新 采用 [Selector]
-  bool root;
-
-  /// [ChangeNotifierProvider.value] 或者[ChangeNotifierProvider]
-  bool value;
-
-  /// 是否验证空数据
-  bool checkEmpty;
-
-  /// 页面变化控制  可以被其他页面控制刷新
-  int state;
-
-  static VSBuilder gBusy;
-  static VSBuilder gEmpty;
-  static VSBuilder gError;
-  static VSBuilder gunAuthorized;
-
-  /// 列表页  列表数据空
-  static VSBuilder gListDataEmpty;
-
-  VSBuilder<VM> busy;
-  VSBuilder<VM> empty;
-  VSBuilder<VM> error;
-  VSBuilder<VM> unAuthorized;
-
-  void setViewState() {
-    this.busy ??= gBusy;
-    this.empty ??= gEmpty;
-    this.error ??= gError;
-    this.unAuthorized ??= gunAuthorized;
-  }
-}
-
-/// 获取可用的监听 [ChangeNotifierProvider.value] 或者 [ChangeNotifierProvider]
-ChangeNotifierProvider _availableCNP<T extends BaseViewModel>(
-    BuildContext context, ViewConfig<T> changeNotifier,
-    {Widget child}) {
-  if (changeNotifier.value) {
-    changeNotifier.vm = Provider.of<T>(context);
-    return ChangeNotifierProvider<T>.value(
-        value: changeNotifier.vm, child: child);
-  } else {
-    return ChangeNotifierProvider<T>(
-        create: (_) => changeNotifier.vm, child: child);
-  }
-}
-
 /// 页面状态展示 空 正常 错误 忙碌
 Widget _viewState<VM extends BaseViewModel>(
     ViewConfig<VM> data, Widget Function(Widget state) builder) {
@@ -698,7 +596,7 @@ Widget _viewState<VM extends BaseViewModel>(
 Widget _root<VM extends BaseViewModel>(
     BuildContext context, ViewConfig<VM> config, VMBuilder<VM> builder) {
   /// 是否根节点需要刷新
-  return _availableCNP<VM>(
+  return availableCNP<VM>(
     context,
     config,
     child: Selector<VM, dynamic>(
@@ -735,7 +633,7 @@ mixin BaseView<VM extends BaseViewModel> on StatelessWidget {
     if (config.load) await config.vm.viewRefresh();
   }
 
-  /// 不要使用  使用 [vmBuild]
+  /// 使用 [vmBuild]
   @deprecated
   @override
   Widget build(BuildContext ctx) {
@@ -768,8 +666,9 @@ mixin BaseViewOfState<T extends StatefulWidget, VM extends BaseViewModel>
   @protected
   ViewConfig<VM> initConfig(BuildContext context);
 
-  /// 因为[mixin]需要执行super.build(context)等方法 在[vmBuild] 之前 执行自定义方法
-  /// 场景 [AutomaticKeepAliveClientMixin] 这种需要执行 super.build(context);
+  /// 因为[mixin]在[vmBuild] 之前 执行自定义方法
+  /// 场景 [AutomaticKeepAliveClientMixin]
+  /// 这种需要执行super.updateKeepAlive() 替换 super.build(context)
   void mixinBuild(BuildContext context) {}
 
   /// 初始化操作 加载等
@@ -784,7 +683,7 @@ mixin BaseViewOfState<T extends StatefulWidget, VM extends BaseViewModel>
     super.initState();
   }
 
-  /// 不要使用  使用 [vmBuild]
+  /// 使用 [vmBuild]
   @deprecated
   @override
   Widget build(BuildContext context) {

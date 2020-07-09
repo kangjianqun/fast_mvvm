@@ -1,3 +1,6 @@
+## 1.1.9+4
+修改 部分代码和注释与注解。
+
 ## 1.1.9+3
 修改 BaseViewState build 兼容。
 新增 BaseViewState 类中的 mixinBuild 方法
