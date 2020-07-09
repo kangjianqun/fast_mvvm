@@ -170,7 +170,6 @@ class ArticlePage extends StatelessWidget with BaseView<ArticleVM> {
 //}
 //
 //class _AAAState extends State<AAA> with BaseViewOfState<AAA, SelectVM> {
-//
 //  @override
 //  ViewConfig<SelectVM> initConfig(BuildContext context) {
 //    // TODO: implement initConfig

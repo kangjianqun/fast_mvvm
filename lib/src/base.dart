@@ -735,7 +735,7 @@ mixin BaseView<VM extends BaseViewModel> on StatelessWidget {
     if (config.load) await config.vm.viewRefresh();
   }
 
-  /// 不要使用  推荐使用 [vmBuild]
+  /// 不要使用  使用 [vmBuild]
   @deprecated
   @override
   Widget build(BuildContext ctx) {
@@ -768,6 +768,10 @@ mixin BaseViewOfState<T extends StatefulWidget, VM extends BaseViewModel>
   @protected
   ViewConfig<VM> initConfig(BuildContext context);
 
+  /// 因为[mixin]需要执行super.build(context)等方法 在[vmBuild] 之前 执行自定义方法
+  /// 场景 [AutomaticKeepAliveClientMixin] 这种需要执行 super.build(context);
+  void mixinBuild(BuildContext context) {}
+
   /// 初始化操作 加载等
   @override
   void initState() {
@@ -780,11 +784,11 @@ mixin BaseViewOfState<T extends StatefulWidget, VM extends BaseViewModel>
     super.initState();
   }
 
-  /// 不要使用  推荐使用 [vmBuild]
+  /// 不要使用  使用 [vmBuild]
   @deprecated
   @override
-  Widget build(BuildContext ctx) {
-    super.build(context);
+  Widget build(BuildContext context) {
+    mixinBuild(context);
 //    LogUtil.printLog("build:----" + this.runtimeType.toString());
     return _root<VM>(context, _config, vmBuild);
   }
