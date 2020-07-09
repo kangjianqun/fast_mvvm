@@ -206,7 +206,11 @@ abstract class BaseViewModel<M extends BaseModel, E extends BaseEntity>
 
   void _disposeAdd(item) {
     try {
-      if (item.dispose != null) _disposeWait.add(item);
+      if (item == null)
+        _disposeWait.add(item);
+      else if (item is StreamSubscription)
+        _disposeWait.add(item);
+      else if (item.dispose != null) _disposeWait.add(item);
     } catch (e, s) {
       handleCatch(e, s, hintError: false);
     }

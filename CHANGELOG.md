@@ -1,3 +1,6 @@
+## 1.1.9+1
+修改 _disposeAdd 异常 兼容处理 null 和 StreamSubscription
+
 ## 1.1.9
 修改 _disposeAdd 异常 导致page页面错误
 
