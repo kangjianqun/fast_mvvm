@@ -208,7 +208,7 @@ abstract class BaseViewModel<M extends BaseModel, E extends BaseEntity>
     try {
       if (item.dispose != null) _disposeWait.add(item);
     } catch (e, s) {
-      handleCatch(e, s);
+      handleCatch(e, s, hintError: false);
     }
   }
 
@@ -223,7 +223,7 @@ abstract class BaseViewModel<M extends BaseModel, E extends BaseEntity>
             item.dispose();
           }
         } catch (e, s) {
-          handleCatch(e, s);
+          handleCatch(e, s, hintError: false);
         } finally {
           item = null;
         }
@@ -354,14 +354,14 @@ abstract class BaseViewModel<M extends BaseModel, E extends BaseEntity>
   /// 统一处理子类的异常情况
   /// [e],有可能是Error,也有可能是Exception.所以需要判断处理
   /// [s] 为堆栈信息
-  void handleCatch(e, s) {
+  void handleCatch(e, s, {bool hintError = true}) {
     // DioError的判断,理论不应该拿进来,增强了代码耦合性,抽取为时组件时.应移除
     if (e is DioError && e.error is UnAuthorizedException) {
       setUnAuthorized();
     } else {
       debugPrint('error--->\n' + e.toString());
       debugPrint('stack--->\n' + s.toString());
-      setError(e is Error ? e.toString() : e.message);
+      if (hintError) setError(e is Error ? e.toString() : e.message);
     }
   }
 }
