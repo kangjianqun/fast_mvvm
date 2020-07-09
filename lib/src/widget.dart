@@ -149,8 +149,8 @@ class ListOrGridEmpty extends StatelessWidget {
       VSBuilder<BaseListViewModel> emptyBuild, BaseListViewModel vm) {
     return emptyBuild != null
         ? emptyBuild(vm)
-        : ViewConfig.gEmpty != null
-            ? ViewConfig.gEmpty(vm)
+        : ViewConfig.gListDataEmpty != null
+            ? ViewConfig.gListDataEmpty(vm)
             : ViewStateEmptyWidget(
                 onTap: () => vm.viewRefresh(rootRefresh: true));
   }

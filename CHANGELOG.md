@@ -1,3 +1,7 @@
+## 1.1.9+2
+修改 BaseViewState build 兼容。
+新增 ViewConfig.gListDataEmpty 配置列表页面->广告数据非空，列表数据空时的空视图，
+
 ## 1.1.9+1
 修改 _disposeAdd 异常 兼容处理 null 和 StreamSubscription
 

@@ -40,6 +40,7 @@ void initMVVM<VM extends BaseViewModel>(
   VSBuilder<VM> empty,
   VSBuilder<VM> error,
   VSBuilder<VM> unAuthorized,
+  VSBuilder<VM> listDataEmpty,
   ResetRefreshState resetRefreshState,
   FinishRefresh finishRefresh,
   ResetLoadState resetLoadState,
@@ -61,6 +62,7 @@ void initMVVM<VM extends BaseViewModel>(
   ViewConfig.gEmpty = empty;
   ViewConfig.gError = error;
   ViewConfig.gunAuthorized = unAuthorized;
+  ViewConfig.gListDataEmpty = listDataEmpty;
 
   dataOfHttpOrData ??= (vm) => true;
   BaseViewModel._dataFromNetworkOrDatabase = dataOfHttpOrData;
@@ -593,6 +595,9 @@ class ViewConfig<VM extends BaseViewModel> {
   static VSBuilder gError;
   static VSBuilder gunAuthorized;
 
+  /// 列表页  列表数据空
+  static VSBuilder gListDataEmpty;
+
   VSBuilder<VM> busy;
   VSBuilder<VM> empty;
   VSBuilder<VM> error;
@@ -779,7 +784,7 @@ mixin BaseViewOfState<T extends StatefulWidget, VM extends BaseViewModel>
   @deprecated
   @override
   Widget build(BuildContext ctx) {
-//    super.build(context);
+    super.build(context);
 //    LogUtil.printLog("build:----" + this.runtimeType.toString());
     return _root<VM>(context, _config, vmBuild);
   }
