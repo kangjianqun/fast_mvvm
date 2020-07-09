@@ -1,3 +1,7 @@
+## 1.1.9+3
+修改 BaseViewState build 兼容。
+新增 BaseViewState 类中的 mixinBuild 方法
+
 ## 1.1.9+2
 修改 BaseViewState build 兼容。
 新增 ViewConfig.gListDataEmpty 配置列表页面->广告数据非空，列表数据空时的空视图，
