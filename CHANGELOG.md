@@ -1,4 +1,11 @@
-## 1.17
+## 1.1.8
+修复 从列表页进入下一页面，返回列表页上拉失效。
+
+ListOrGridEmpty 新增 listWidget 方法
+
+initMVVM 新增 height 和 width 设置
+
+## 1.1.7
 优化 ViewConfig 配置
 
 ## 1.1.6

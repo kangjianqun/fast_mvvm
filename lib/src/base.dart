@@ -45,11 +45,17 @@ void initMVVM<VM extends BaseViewModel>(
   ResetLoadState resetLoadState,
   FinishLoad finishLoad,
   ControllerBuild controllerBuild,
+  num height,
+  num width,
 }) {
   assert(initPage != null);
 
   /// 载入model 后期调用API
   addModel(list: models);
+
+  if (height != null) pageHeight = height;
+  if (width != null) pageWidth = width;
+
   BaseListViewModel.pageFirst = initPage;
   ViewConfig.gBusy = busy;
   ViewConfig.gEmpty = empty;
@@ -199,7 +205,11 @@ abstract class BaseViewModel<M extends BaseModel, E extends BaseEntity>
   }
 
   void _disposeAdd(item) {
-    if (item.dispose != null) _disposeWait.add(item);
+    try {
+      if (item.dispose != null) _disposeWait.add(item);
+    } catch (e, s) {
+      handleCatch(e, s);
+    }
   }
 
   /// 清理内存占用
@@ -369,7 +379,7 @@ abstract class BaseListViewModel<M extends BaseModel, E extends BaseEntity, I>
 
   /// 当前页码
   int _currentPageNum = pageFirst;
-  static int _totalPageNum = 1;
+  int _totalPageNum = 1;
 
   /// 跟上拉刷新 下拉加载 相关配置
   static ControllerBuild _controllerBuild;
@@ -406,7 +416,6 @@ abstract class BaseListViewModel<M extends BaseModel, E extends BaseEntity, I>
       _finishLoad(controller, success: success, noMore: noMore);
   }
 
-  @protected
   List<I> get list;
 
   /// 验证数据

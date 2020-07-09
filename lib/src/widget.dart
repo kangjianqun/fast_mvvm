@@ -5,6 +5,9 @@ import 'package:provider/provider.dart';
 
 import 'base.dart';
 
+double pageWidth = 1080;
+double pageHeight = 1920;
+
 Widget vmEmptyView<T extends BaseViewModel>(
     {@required Function(T vm) builder,
     bool Function(T vm) isEmpty,
@@ -20,11 +23,36 @@ Widget vmEmptyView<T extends BaseViewModel>(
   );
 }
 
-/// 上级
+/// 空Widget大小类型
 enum EmptySizeType {
   Not, // 无
   Expanded,
   Size, // 确定
+}
+
+enum MaxIndex { top, center, below }
+
+/// 用于当 List 或者 Grid 空的时候生成完整的整页面
+/// 如果在[ListView] 里面用
+class EmptyIntactWidget {
+  EmptyIntactWidget({
+    this.top,
+    this.center,
+    this.below,
+    @required this.maxIndex,
+  });
+
+  /// 上
+  Widget top;
+
+  /// 中
+  Widget center;
+
+  /// 下
+  Widget below;
+
+  /// 选择哪个最大填充 并且为 List和Grid数据显示的位置
+  MaxIndex maxIndex;
 }
 
 /// 内容容器 判断 List 或者 Grid 是否为空 显示内容或加载空视图
@@ -35,21 +63,25 @@ class ListOrGridEmpty extends StatelessWidget {
     @required this.childBuild,
     this.emptyBuild,
     this.emptySizeType = EmptySizeType.Not,
+    this.childDifferent = true,
   })  : height = null,
         width = null,
         super(key: key);
 
+  /// [Column] 用这个
   const ListOrGridEmpty.max({
     Key key,
     @required this.vm,
     @required this.childBuild,
     this.emptyBuild,
     this.emptySizeType = EmptySizeType.Expanded,
+    this.childDifferent = true,
   })  : height = null,
         width = null,
         super(key: key);
 
-  const ListOrGridEmpty.height({
+  /// 固定大小，按需使用
+  const ListOrGridEmpty.size({
     Key key,
     @required this.vm,
     @required this.childBuild,
@@ -57,17 +89,64 @@ class ListOrGridEmpty extends StatelessWidget {
     @required this.width,
     this.emptyBuild,
     this.emptySizeType = EmptySizeType.Size,
+    this.childDifferent = true,
   }) : super(key: key);
 
   final BaseListViewModel vm;
   final Function() childBuild;
   final VSBuilder<BaseListViewModel> emptyBuild;
   final EmptySizeType emptySizeType;
+
+  /// [childBuild] 不依赖[EmptySizeType]
+  final bool childDifferent;
   final num height;
   final num width;
 
+  /// 如果空数据则 显示完整的单独页 在[ListView] 里面用 完整页面 需要大小 可以全局设置
+  /// 场景 文章页 头部是广告 下方为文章列表 当list 应该显示广告，列表显示空
+  static List<Widget> listWidget({
+    @required EmptyIntactWidget emptyIntactWidget,
+    num height,
+    num width,
+    @required BaseListViewModel vm,
+    VSBuilder<BaseListViewModel> emptyBuild,
+  }) {
+    List<Widget> list = [];
+    double _height = height ?? pageHeight;
+    double _width = width ?? pageWidth;
+
+    var empty = vm.list == null || vm.list.length <= 0;
+
+    Widget emptyView = Expanded(child: _emptyWidget(emptyBuild, vm));
+
+    Widget _top, _center, _below;
+    switch (emptyIntactWidget.maxIndex) {
+      case MaxIndex.top:
+        _top = empty ? emptyView : emptyIntactWidget.top;
+        break;
+      case MaxIndex.center:
+        _center = empty ? emptyView : emptyIntactWidget.center;
+        break;
+      case MaxIndex.below:
+        _below = empty ? emptyView : emptyIntactWidget.below;
+        break;
+    }
+
+    if (_top != null) list.add(_top);
+    if (_center != null) list.add(_center);
+    if (_below != null) list.add(_below);
+
+    if (empty)
+      list = [
+        Container(width: _width, height: _height, child: Column(children: list))
+      ];
+
+    return list;
+  }
+
   /// 空视图 优先级
-  Widget _emptyWidget() {
+  static Widget _emptyWidget(
+      VSBuilder<BaseListViewModel> emptyBuild, BaseListViewModel vm) {
     return emptyBuild != null
         ? emptyBuild(vm)
         : ViewConfig.gEmpty != null
@@ -78,19 +157,22 @@ class ListOrGridEmpty extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ignore: invalid_use_of_protected_member
     var empty = vm.list == null || vm.list.length <= 0;
-    Widget view = empty ? _emptyWidget() : childBuild();
-    switch (emptySizeType) {
-      case EmptySizeType.Not:
-        break;
-      case EmptySizeType.Expanded:
-        view = Expanded(child: view);
-        break;
-      case EmptySizeType.Size:
-        Container(height: height, width: width, child: view);
-        break;
+
+    Widget view = empty ? _emptyWidget(emptyBuild, vm) : childBuild();
+    if (!childDifferent) {
+      switch (emptySizeType) {
+        case EmptySizeType.Not:
+          break;
+        case EmptySizeType.Expanded:
+          view = Expanded(child: view);
+          break;
+        case EmptySizeType.Size:
+          view = Container(height: height, width: width, child: view);
+          break;
+      }
     }
+
     return view;
   }
 }
