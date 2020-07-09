@@ -20,6 +20,114 @@ class DataResponse<T> {
   });
 }
 
+/// view层 配置用类  配置全局默认状态页
+class ViewConfig<VM extends BaseViewModel> {
+  ViewConfig({
+    @required this.vm,
+    this.child,
+    this.color,
+    this.load = true,
+    this.checkEmpty = true,
+    this.state,
+    this.value = false,
+    this.busy,
+    this.empty,
+    this.error,
+    this.unAuthorized,
+  }) : this.root = true {
+    setViewState();
+  }
+
+  ViewConfig.value({
+    @required this.vm,
+    this.child,
+    this.color,
+    this.load = false,
+    this.checkEmpty = true,
+    this.state,
+    this.value = true,
+    this.busy,
+    this.empty,
+    this.error,
+    this.unAuthorized,
+  }) : this.root = true {
+    setViewState();
+  }
+
+  ViewConfig.noRoot({
+    @required this.vm,
+    this.child,
+    this.color,
+    this.load = true,
+    this.checkEmpty = true,
+    this.state,
+    this.value = false,
+    this.busy,
+    this.empty,
+    this.error,
+    this.unAuthorized,
+  }) : this.root = false {
+    setViewState();
+  }
+
+  /// VM
+  VM vm;
+
+  Widget child;
+
+  /// 背景颜色
+  Color color;
+
+  /// 加载
+  bool load;
+
+  /// 是否根布局刷新 采用 [Selector]
+  bool root;
+
+  /// [ChangeNotifierProvider.value] 或者[ChangeNotifierProvider]
+  bool value;
+
+  /// 是否验证空数据
+  bool checkEmpty;
+
+  /// 页面变化控制  可以被其他页面控制刷新
+  int state;
+
+  static VSBuilder gBusy;
+  static VSBuilder gEmpty;
+  static VSBuilder gError;
+  static VSBuilder gunAuthorized;
+
+  /// 列表页  列表数据空
+  static VSBuilder gListDataEmpty;
+
+  VSBuilder<VM> busy;
+  VSBuilder<VM> empty;
+  VSBuilder<VM> error;
+  VSBuilder<VM> unAuthorized;
+
+  void setViewState() {
+    this.busy ??= gBusy;
+    this.empty ??= gEmpty;
+    this.error ??= gError;
+    this.unAuthorized ??= gunAuthorized;
+  }
+}
+
+/// 获取可用的监听 [ChangeNotifierProvider.value] 或者 [ChangeNotifierProvider]
+ChangeNotifierProvider availableCNP<T extends BaseViewModel>(
+    BuildContext context, ViewConfig<T> changeNotifier,
+    {Widget child}) {
+  if (changeNotifier.value) {
+    changeNotifier.vm = Provider.of<T>(context);
+    return ChangeNotifierProvider<T>.value(
+        value: changeNotifier.vm, child: child);
+  } else {
+    return ChangeNotifierProvider<T>(
+        create: (_) => changeNotifier.vm, child: child);
+  }
+}
+
 class _ViewStateNotifier {
   ValueNotifier<bool> vn;
   bool notifier;
