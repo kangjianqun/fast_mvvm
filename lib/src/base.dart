@@ -381,7 +381,7 @@ abstract class BaseListViewModel<M extends BaseModel, E extends BaseEntity, I>
     extends BaseViewModel<M, E> {
   BaseListViewModel({params, refreshController})
       : super(defaultOfParams: params) {
-    _refreshController = refreshController;
+    if (refreshController != null) _refreshController = refreshController;
   }
 
   /// 分页第一页页码
@@ -485,7 +485,7 @@ abstract class BaseListViewModel<M extends BaseModel, E extends BaseEntity, I>
 //    print('------> current: $_currentPageNum  total: $_totalPageNum');
     _activeGlobalRefresh = globalRefresh;
     if (_currentPageNum >= _totalPageNum) {
-      finishLoad(_refreshController, success: true, noMore: true);
+      finishLoad(_refreshController, success: false, noMore: true);
     } else {
       var cPage = ++_currentPageNum;
       //debugPrint('ViewStateRefreshListViewModel.loadMore page: $currentPage');
