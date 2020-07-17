@@ -65,8 +65,7 @@ void initMVVM<VM extends BaseViewModel>(
   /// 载入model 后期调用API
   addModel(list: models);
 
-  if (height != null) pageHeight = height;
-  if (width != null) pageWidth = width;
+  initPageSize(width, height);
 
   BaseListViewModel.pageFirst = initPage;
   ViewConfig.gBusy = busy;
@@ -250,8 +249,8 @@ abstract class BaseViewModel<M extends BaseModel, E extends BaseEntity>
     super.dispose();
   }
 
-  void _init(bool await) {
-    if (!await) {
+  void _init(bool isAwait) {
+    if (!isAwait) {
       model = getModel() ?? getModelGlobal<M>();
       init();
 //      if (isSaveVM()) _addVM(this);
@@ -262,7 +261,7 @@ abstract class BaseViewModel<M extends BaseModel, E extends BaseEntity>
   }
 
   @protected
-  void init() {}
+  void init() async {}
 
   /// 保存VM
   bool isSaveVM() => false;
@@ -485,7 +484,7 @@ abstract class BaseListViewModel<M extends BaseModel, E extends BaseEntity, I>
 //    print('------> current: $_currentPageNum  total: $_totalPageNum');
     _activeGlobalRefresh = globalRefresh;
     if (_currentPageNum >= _totalPageNum) {
-      finishLoad(_refreshController, success: false, noMore: true);
+      finishLoad(_refreshController, success: true, noMore: true);
     } else {
       var cPage = ++_currentPageNum;
       //debugPrint('ViewStateRefreshListViewModel.loadMore page: $currentPage');

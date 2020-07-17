@@ -8,6 +8,12 @@ import 'common.dart';
 double pageWidth = 1080;
 double pageHeight = 1920;
 
+/// 初始化页面大小 注意适配宽高 还有标题栏高度
+void initPageSize(double width, double height) {
+  if (height != null) pageHeight = height;
+  if (width != null) pageWidth = width;
+}
+
 Widget vmEmptyView<T extends BaseViewModel>(
     {@required Function(T vm) builder,
     bool Function(T vm) isEmpty,
@@ -119,7 +125,9 @@ class ListOrGridEmpty extends StatelessWidget {
 
     Widget emptyView = Expanded(child: _emptyWidget(emptyBuild, vm));
 
-    Widget _top, _center, _below;
+    Widget _top = emptyIntactWidget.top,
+        _center = emptyIntactWidget.center,
+        _below = emptyIntactWidget.below;
     switch (emptyIntactWidget.maxIndex) {
       case MaxIndex.top:
         _top = empty ? emptyView : emptyIntactWidget.top;

@@ -1,3 +1,8 @@
+## 1.2.0+1
+修复 ListOrGridEmpty.listWidget 异常。
+
+新增 页面大小设置 initPageSize
+
 ## 1.2.0
 修复 刷新状态异常。
 
