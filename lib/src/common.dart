@@ -4,12 +4,23 @@ import 'package:provider/provider.dart';
 
 import 'base.dart';
 
+/// 接口数据 响应
 class DataResponse<T> {
   T entity;
+
+  /// 最终结果
   bool result;
+
+  /// dio 的默认
   Response response;
+
+  /// 当前页面总页码  配合 [BaseListViewModel] 默认一页
   int totalPageNum;
+
+  /// 语法糖
   get data => response.data;
+
+  /// 语法糖 默认的[Response]的statusCode 可以在 [InterceptorsWrapper] 自定义处理
   int get code => response.statusCode;
 
   DataResponse({
