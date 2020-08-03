@@ -1,3 +1,8 @@
+## 1.2.0+2
+
+新增 DataResponse 的 extend 属性；
+新增 DataResponse 新的构造 DataResponse.copy
+
 ## 1.2.0+1
 修复 ListOrGridEmpty.listWidget 异常。
 
