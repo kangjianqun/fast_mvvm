@@ -17,6 +17,9 @@ class DataResponse<T> {
   /// 当前页面总页码  配合 [BaseListViewModel] 默认一页
   int totalPageNum;
 
+  /// 扩展数据
+  Map<String, dynamic> extend;
+
   /// 语法糖
   get data => response.data;
 
@@ -29,6 +32,20 @@ class DataResponse<T> {
     this.response,
     this.totalPageNum = 1,
   });
+
+  /// 拷贝
+  DataResponse.copy(
+      {DataResponse dataResponse,
+      @required this.entity,
+      this.response,
+      this.totalPageNum,
+      this.result,
+      this.extend}) {
+    response ??= dataResponse.response;
+    totalPageNum ??= dataResponse.totalPageNum;
+    result ??= dataResponse.result;
+    extend ??= dataResponse.extend;
+  }
 }
 
 /// view层 配置用类  配置全局默认状态页
