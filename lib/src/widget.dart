@@ -95,7 +95,7 @@ class ListOrGridEmpty extends StatelessWidget {
     @required this.width,
     this.emptyBuild,
     this.emptySizeType = EmptySizeType.Size,
-    this.childDifferent = true,
+    this.childDifferent = false,
   }) : super(key: key);
 
   final BaseListViewModel vm;

@@ -81,6 +81,22 @@ class ViewConfig<VM extends BaseViewModel> {
     setViewState();
   }
 
+  ViewConfig.noLoad({
+    @required this.vm,
+    this.child,
+    this.color,
+    this.load = false,
+    this.checkEmpty = true,
+    this.state,
+    this.value = false,
+    this.busy,
+    this.empty,
+    this.error,
+    this.unAuthorized,
+  }) : this.root = true {
+    setViewState();
+  }
+
   /// VM
   VM vm;
 

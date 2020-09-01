@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:fast_event_bus/fast_event_bus.dart';
+import 'package:fast_mvvm/fast_mvvm.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 
@@ -428,6 +429,12 @@ abstract class BaseListViewModel<M extends BaseModel, E extends BaseEntity, I>
   /// list 数据 [ListOrGridEmpty] 可以配置使用
   List<I> get list;
 
+  /// 取出list中的item [index] 需正确
+  I item(int index) {
+    assert(index != null && index >= 0 && index < list.length);
+    return list[index];
+  }
+
   /// 验证数据
   bool _checkData(bool isLoad, DataResponse<E> data) {
     if (data == null || data.entity == null) return true;
@@ -592,7 +599,7 @@ Widget _viewState<VM extends BaseViewModel>(
 }
 
 /// root 根节点加工 根节点是否需要刷新，不刷新就执行一次刷新 更新第一次状态变化
-Widget _root<VM extends BaseViewModel>(
+ChangeNotifierProvider _root<VM extends BaseViewModel>(
     BuildContext context, ViewConfig<VM> config, VMBuilder<VM> builder) {
   /// 是否根节点需要刷新
   return availableCNP<VM>(

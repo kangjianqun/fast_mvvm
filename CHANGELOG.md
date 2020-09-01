@@ -1,3 +1,13 @@
+## 1.2.2
+新增 ViewConfig.noLoad
+新增 BaseListViewModel -> item
+修复 ListOrGridEmpty.max 错误
+
+## 1.2.1
+修复 ListOrGridEmpty.listWidget 异常。
+
+新增 BaseListViewModel 的 item 方法
+
 ## 1.2.0+1
 修复 ListOrGridEmpty.listWidget 异常。
 
