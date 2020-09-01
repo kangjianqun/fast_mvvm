@@ -30,7 +30,7 @@ Widget vmEmptyView<T extends BaseViewModel>(
 }
 
 /// 空Widget大小类型
-enum EmptySizeType {
+enum ViewSizeType {
   Not, // 无
   Expanded,
   Size, // 确定
@@ -68,8 +68,8 @@ class ListOrGridEmpty extends StatelessWidget {
     @required this.vm,
     @required this.childBuild,
     this.emptyBuild,
-    this.emptySizeType = EmptySizeType.Not,
-    this.childDifferent = true,
+    this.viewSizeType = ViewSizeType.Not,
+    this.useViewSizeType = false,
   })  : height = null,
         width = null,
         super(key: key);
@@ -80,8 +80,8 @@ class ListOrGridEmpty extends StatelessWidget {
     @required this.vm,
     @required this.childBuild,
     this.emptyBuild,
-    this.emptySizeType = EmptySizeType.Expanded,
-    this.childDifferent = true,
+    this.viewSizeType = ViewSizeType.Expanded,
+    this.useViewSizeType = true,
   })  : height = null,
         width = null,
         super(key: key);
@@ -94,17 +94,17 @@ class ListOrGridEmpty extends StatelessWidget {
     @required this.height,
     @required this.width,
     this.emptyBuild,
-    this.emptySizeType = EmptySizeType.Size,
-    this.childDifferent = false,
+    this.viewSizeType = ViewSizeType.Size,
+    this.useViewSizeType = true,
   }) : super(key: key);
 
   final BaseListViewModel vm;
   final Function() childBuild;
   final VSBuilder<BaseListViewModel> emptyBuild;
-  final EmptySizeType emptySizeType;
+  final ViewSizeType viewSizeType;
 
-  /// [childBuild] 不依赖[EmptySizeType]
-  final bool childDifferent;
+  /// [childBuild] 不依赖[ViewSizeType]  应用
+  final bool useViewSizeType;
   final num height;
   final num width;
 
@@ -168,14 +168,14 @@ class ListOrGridEmpty extends StatelessWidget {
     var empty = vm.list == null || vm.list.length <= 0;
 
     Widget view = empty ? _emptyWidget(emptyBuild, vm) : childBuild();
-    if (!childDifferent) {
-      switch (emptySizeType) {
-        case EmptySizeType.Not:
+    if (useViewSizeType) {
+      switch (viewSizeType) {
+        case ViewSizeType.Not:
           break;
-        case EmptySizeType.Expanded:
+        case ViewSizeType.Expanded:
           view = Expanded(child: view);
           break;
-        case EmptySizeType.Size:
+        case ViewSizeType.Size:
           view = Container(height: height, width: width, child: view);
           break;
       }
