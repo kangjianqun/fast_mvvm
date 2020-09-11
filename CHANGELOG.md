@@ -1,3 +1,8 @@
+## 1.2.2+2
+修复 ListOrGridEmpty 新增 emptyViewUseViewSizeType
+
+修改pageWidth | pageHeight为_pageWidth _pageHeight 防止变量名冲突
+
 ## 1.2.2+1
 修复 ListOrGridEmpty 错误 修改 childDifferent 为 useViewSizeType
 

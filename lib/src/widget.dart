@@ -5,13 +5,13 @@ import 'package:provider/provider.dart';
 import 'base.dart';
 import 'common.dart';
 
-double pageWidth = 1080;
-double pageHeight = 1920;
+double _pageWidth = 1080;
+double _pageHeight = 1920;
 
 /// 初始化页面大小 注意适配宽高 还有标题栏高度
 void initPageSize(double width, double height) {
-  if (height != null) pageHeight = height;
-  if (width != null) pageWidth = width;
+  if (height != null) _pageHeight = height;
+  if (width != null) _pageWidth = width;
 }
 
 Widget vmEmptyView<T extends BaseViewModel>(
@@ -70,18 +70,20 @@ class ListOrGridEmpty extends StatelessWidget {
     this.emptyBuild,
     this.viewSizeType = ViewSizeType.Not,
     this.useViewSizeType = false,
+    this.emptyViewUseViewSizeType = false,
   })  : height = null,
         width = null,
         super(key: key);
 
-  /// [Column] 用这个
+  /// [Column] 和[Row] 用 [Expanded] 实现
   const ListOrGridEmpty.max({
     Key key,
     @required this.vm,
     @required this.childBuild,
     this.emptyBuild,
     this.viewSizeType = ViewSizeType.Expanded,
-    this.useViewSizeType = true,
+    this.useViewSizeType = false,
+    this.emptyViewUseViewSizeType = true,
   })  : height = null,
         width = null,
         super(key: key);
@@ -95,7 +97,8 @@ class ListOrGridEmpty extends StatelessWidget {
     @required this.width,
     this.emptyBuild,
     this.viewSizeType = ViewSizeType.Size,
-    this.useViewSizeType = true,
+    this.useViewSizeType = false,
+    this.emptyViewUseViewSizeType = true,
   }) : super(key: key);
 
   final BaseListViewModel vm;
@@ -105,11 +108,14 @@ class ListOrGridEmpty extends StatelessWidget {
 
   /// [childBuild] 不依赖[ViewSizeType]  应用
   final bool useViewSizeType;
+
+  /// [childBuild] 不依赖[ViewSizeType]  应用
+  final bool emptyViewUseViewSizeType;
   final num height;
   final num width;
 
   /// 如果空数据则 显示完整的单独页 在[ListView] 里面用 完整页面 需要大小 可以全局设置
-  /// 场景 文章页 头部是广告 下方为文章列表 当list 应该显示广告，列表显示空
+  /// 场景 文章页 头部是广告 下方为文章列表 当list 未空 广告应该正常显示，列表显示空
   static List<Widget> listWidget({
     @required EmptyIntactWidget emptyIntactWidget,
     num height,
@@ -118,8 +124,8 @@ class ListOrGridEmpty extends StatelessWidget {
     VSBuilder<BaseListViewModel> emptyBuild,
   }) {
     List<Widget> list = [];
-    double _height = height ?? pageHeight;
-    double _width = width ?? pageWidth;
+    double _height = height ?? _pageHeight;
+    double _width = width ?? _pageWidth;
 
     var empty = vm.list == null || vm.list.length <= 0;
 
@@ -168,7 +174,7 @@ class ListOrGridEmpty extends StatelessWidget {
     var empty = vm.list == null || vm.list.length <= 0;
 
     Widget view = empty ? _emptyWidget(emptyBuild, vm) : childBuild();
-    if (useViewSizeType) {
+    if ((useViewSizeType && !empty) || (emptyViewUseViewSizeType && empty)) {
       switch (viewSizeType) {
         case ViewSizeType.Not:
           break;
