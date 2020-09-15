@@ -116,12 +116,12 @@ abstract class BaseViewModel<M extends BaseModel, E extends BaseEntity>
     Future.delayed(Duration(seconds: 1), () => _init(true));
   }
 
-  /// model
+  /// model API
   M model;
 
   M getModel() => null;
 
-  /// 实体类
+  /// entity 实体类 数据
   E entity;
 
   /// 默认参数
@@ -136,7 +136,6 @@ abstract class BaseViewModel<M extends BaseModel, E extends BaseEntity>
   /// 防止页面销毁后,异步任务才完成,导致报错
   bool _disposed = false;
   bool _notifyIntercept = false;
-  BuildContext context;
 
   /// 当前的页面状态,默认为busy,可在viewModel的构造方法中指定;
   ViewModelState _viewState;
@@ -635,7 +634,6 @@ mixin BaseView<VM extends BaseViewModel> on StatelessWidget {
 
   /// 初始化操作 加载等
   _init(BuildContext context, ViewConfig<VM> config) async {
-    config.vm.context ??= context;
     if (config.load) await config.vm.viewRefresh();
   }
 
@@ -684,7 +682,6 @@ mixin BaseViewOfState<T extends StatefulWidget, VM extends BaseViewModel>
     if (_config == null) {
       throw "initConfig 方法 返回空值";
     }
-    _config.vm.context ??= context;
     if (_config.load) _config.vm.viewRefresh();
     super.initState();
   }

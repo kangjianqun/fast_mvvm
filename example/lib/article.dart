@@ -118,6 +118,7 @@ class ArticlePage extends StatelessWidget with BaseView<ArticleVM> {
               ),
               ListOrGridEmpty.max(
                 vm: vm,
+                useViewSizeType: true,
                 childBuild: () => EasyRefresh(
                   controller: vm.refreshController,
                   onLoad: vm.loadMore,

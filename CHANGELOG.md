@@ -1,3 +1,8 @@
+## 1.2.3
+修复 demo
+
+去除BaseViewModel的context保存框架单纯度关于context使用全局或者fast_develop
+
 ## 1.2.2+2
 修复 ListOrGridEmpty 新增 emptyViewUseViewSizeType
 

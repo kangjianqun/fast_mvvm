@@ -106,10 +106,10 @@ class ListOrGridEmpty extends StatelessWidget {
   final VSBuilder<BaseListViewModel> emptyBuild;
   final ViewSizeType viewSizeType;
 
-  /// [childBuild] 不依赖[ViewSizeType]  应用
+  /// [childBuild] 是否依赖于[ViewSizeType]
   final bool useViewSizeType;
 
-  /// [childBuild] 不依赖[ViewSizeType]  应用
+  /// emptyView 是否依赖于[ViewSizeType]
   final bool emptyViewUseViewSizeType;
   final num height;
   final num width;
