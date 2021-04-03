@@ -9,15 +9,15 @@ double _pageWidth = 1080;
 double _pageHeight = 1920;
 
 /// 初始化页面大小 注意适配宽高 还有标题栏高度
-void initPageSize(double width, double height) {
+void initPageSize(double? width, double? height) {
   if (height != null) _pageHeight = height;
   if (width != null) _pageWidth = width;
 }
 
 Widget vmEmptyView<T extends BaseViewModel>(
-    {@required Function(T vm) builder,
-    bool Function(T vm) isEmpty,
-    Widget nullChild}) {
+    {required Function(T vm) builder,
+    bool Function(T vm)? isEmpty,
+    Widget? nullChild}) {
   return Consumer<T>(
     builder: (_, vm, __) {
 //      LogUtil.printLog(vm.empty);
@@ -45,17 +45,17 @@ class EmptyIntactWidget {
     this.top,
     this.center,
     this.below,
-    @required this.maxIndex,
+    required this.maxIndex,
   });
 
   /// 上
-  Widget top;
+  Widget? top;
 
   /// 中
-  Widget center;
+  Widget? center;
 
   /// 下
-  Widget below;
+  Widget? below;
 
   /// 选择哪个最大填充 并且为 List和Grid数据显示的位置
   MaxIndex maxIndex;
@@ -64,9 +64,9 @@ class EmptyIntactWidget {
 /// 内容容器 判断 List 或者 Grid 是否为空 显示内容或加载空视图
 class ListOrGridEmpty extends StatelessWidget {
   const ListOrGridEmpty({
-    Key key,
-    @required this.vm,
-    @required this.childBuild,
+    Key? key,
+    required this.vm,
+    required this.childBuild,
     this.emptyBuild,
     this.viewSizeType = ViewSizeType.Not,
     this.useViewSizeType = false,
@@ -77,9 +77,9 @@ class ListOrGridEmpty extends StatelessWidget {
 
   /// [Column] 和[Row] 用 [Expanded] 实现
   const ListOrGridEmpty.max({
-    Key key,
-    @required this.vm,
-    @required this.childBuild,
+    Key? key,
+    required this.vm,
+    required this.childBuild,
     this.emptyBuild,
     this.viewSizeType = ViewSizeType.Expanded,
     this.useViewSizeType = false,
@@ -90,11 +90,11 @@ class ListOrGridEmpty extends StatelessWidget {
 
   /// 固定大小，按需使用
   const ListOrGridEmpty.size({
-    Key key,
-    @required this.vm,
-    @required this.childBuild,
-    @required this.height,
-    @required this.width,
+    Key? key,
+    required this.vm,
+    required this.childBuild,
+    required this.height,
+    required this.width,
     this.emptyBuild,
     this.viewSizeType = ViewSizeType.Size,
     this.useViewSizeType = false,
@@ -103,7 +103,7 @@ class ListOrGridEmpty extends StatelessWidget {
 
   final BaseListViewModel vm;
   final Function() childBuild;
-  final VSBuilder<BaseListViewModel> emptyBuild;
+  final VSBuilder<BaseListViewModel>? emptyBuild;
   final ViewSizeType viewSizeType;
 
   /// [childBuild] 是否依赖于[ViewSizeType]
@@ -111,27 +111,27 @@ class ListOrGridEmpty extends StatelessWidget {
 
   /// emptyView 是否依赖于[ViewSizeType]
   final bool emptyViewUseViewSizeType;
-  final num height;
-  final num width;
+  final num? height;
+  final num? width;
 
   /// 如果空数据则 显示完整的单独页 在[ListView] 里面用 完整页面 需要大小 可以全局设置
   /// 场景 文章页 头部是广告 下方为文章列表 当list 未空 广告应该正常显示，列表显示空
   static List<Widget> listWidget({
-    @required EmptyIntactWidget emptyIntactWidget,
-    num height,
-    num width,
-    @required BaseListViewModel vm,
-    VSBuilder<BaseListViewModel> emptyBuild,
+    required EmptyIntactWidget emptyIntactWidget,
+    num? height,
+    num? width,
+    required BaseListViewModel vm,
+    VSBuilder<BaseListViewModel>? emptyBuild,
   }) {
     List<Widget> list = [];
-    double _height = height ?? _pageHeight;
-    double _width = width ?? _pageWidth;
+    num _height = height ?? _pageHeight;
+    num _width = width ?? _pageWidth;
 
-    var empty = vm.list == null || vm.list.length <= 0;
+    var empty = vm.list == null || vm.list!.length <= 0;
 
     Widget emptyView = Expanded(child: _emptyWidget(emptyBuild, vm));
 
-    Widget _top = emptyIntactWidget.top,
+    Widget? _top = emptyIntactWidget.top,
         _center = emptyIntactWidget.center,
         _below = emptyIntactWidget.below;
     switch (emptyIntactWidget.maxIndex) {
@@ -152,7 +152,11 @@ class ListOrGridEmpty extends StatelessWidget {
 
     if (empty)
       list = [
-        Container(width: _width, height: _height, child: Column(children: list))
+        Container(
+          width: _width.toDouble(),
+          height: _height.toDouble(),
+          child: Column(children: list),
+        )
       ];
 
     return list;
@@ -160,18 +164,18 @@ class ListOrGridEmpty extends StatelessWidget {
 
   /// 空视图 优先级
   static Widget _emptyWidget(
-      VSBuilder<BaseListViewModel> emptyBuild, BaseListViewModel vm) {
+      VSBuilder<BaseListViewModel>? emptyBuild, BaseListViewModel vm) {
     return emptyBuild != null
         ? emptyBuild(vm)
         : ViewConfig.gListDataEmpty != null
-            ? ViewConfig.gListDataEmpty(vm)
+            ? ViewConfig.gListDataEmpty!(vm)
             : ViewStateEmptyWidget(
                 onTap: () => vm.viewRefresh(rootRefresh: true));
   }
 
   @override
   Widget build(BuildContext context) {
-    var empty = vm.list == null || vm.list.length <= 0;
+    var empty = vm.list == null || vm.list!.length <= 0;
 
     Widget view = empty ? _emptyWidget(emptyBuild, vm) : childBuild();
     if ((useViewSizeType && !empty) || (emptyViewUseViewSizeType && empty)) {
@@ -182,7 +186,11 @@ class ListOrGridEmpty extends StatelessWidget {
           view = Expanded(child: view);
           break;
         case ViewSizeType.Size:
-          view = Container(height: height, width: width, child: view);
+          view = Container(
+            height: height!.toDouble(),
+            width: width!.toDouble(),
+            child: view,
+          );
           break;
       }
     }
@@ -202,10 +210,10 @@ class UnAuthorizedException implements Exception {
 /// 加载中
 class ViewStateBusyWidget extends StatelessWidget {
   const ViewStateBusyWidget({
-    Key key,
+    Key? key,
     this.backgroundColor,
   }) : super(key: key);
-  final Color backgroundColor;
+  final Color? backgroundColor;
 
   @override
   Widget build(BuildContext context) {
@@ -220,16 +228,16 @@ class ViewStateBusyWidget extends StatelessWidget {
 /// 基础Widget
 class ViewStateWidget extends StatelessWidget {
   ViewStateWidget({
-    Key key,
+    Key? key,
     this.image,
     this.message,
     this.buttonText,
-    @required this.onTap,
+    required this.onTap,
   }) : super(key: key);
 
-  final String message;
-  final Widget image;
-  final Widget buttonText;
+  final String? message;
+  final Widget? image;
+  final Widget? buttonText;
   final GestureTapCallback onTap;
 
   @override
@@ -246,7 +254,7 @@ class ViewStateWidget extends StatelessWidget {
               message ?? "加载失败",
               style: Theme.of(context)
                   .textTheme
-                  .bodyText2
+                  .bodyText2!
                   .copyWith(color: Colors.grey),
             ),
           ),
@@ -260,16 +268,16 @@ class ViewStateWidget extends StatelessWidget {
 /// 页面无数据
 class ViewStateEmptyWidget extends StatelessWidget {
   const ViewStateEmptyWidget({
-    Key key,
+    Key? key,
     this.image,
     this.message,
     this.buttonText,
-    @required this.onTap,
+    required this.onTap,
   }) : super(key: key);
 
-  final String message;
-  final Widget image;
-  final Widget buttonText;
+  final String? message;
+  final Widget? image;
+  final Widget? buttonText;
   final GestureTapCallback onTap;
 
   @override
@@ -287,16 +295,16 @@ class ViewStateEmptyWidget extends StatelessWidget {
 /// 页面未授权
 class ViewStateUnAuthWidget extends StatelessWidget {
   const ViewStateUnAuthWidget({
-    Key key,
+    Key? key,
     this.image,
     this.message,
     this.buttonText,
-    @required this.onTap,
+    required this.onTap,
   }) : super(key: key);
 
-  final String message;
-  final Widget image;
-  final Widget buttonText;
+  final String? message;
+  final Widget? image;
+  final Widget? buttonText;
   final GestureTapCallback onTap;
 
   @override
@@ -313,9 +321,9 @@ class ViewStateUnAuthWidget extends StatelessWidget {
 /// 公用Button
 class ViewStateButton extends StatelessWidget {
   final GestureTapCallback onTap;
-  final Widget child;
+  final Widget? child;
 
-  const ViewStateButton({@required this.onTap, this.child});
+  const ViewStateButton({required this.onTap, this.child});
 
   @override
   Widget build(BuildContext context) {

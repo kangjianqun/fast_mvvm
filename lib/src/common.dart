@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 
+import '../fast_mvvm.dart';
 import 'base.dart';
 
 /// 接口数据 响应
@@ -9,25 +10,25 @@ class DataResponse<T> {
   T entity;
 
   /// 最终结果
-  bool result;
+  bool? result;
 
   /// dio 的默认
-  Response response;
+  Response? response;
 
   /// 当前页面总页码  配合 [BaseListViewModel] 默认一页
-  int totalPageNum;
+  int? totalPageNum;
 
   /// 扩展数据
-  Map<String, dynamic> extend;
+  Map<String, dynamic>? extend;
 
   /// 语法糖
-  get data => response.data;
+  get data => response?.data;
 
   /// 语法糖 默认的[Response]的statusCode 可以在 [InterceptorsWrapper] 自定义处理
-  int get code => response.statusCode;
+  int? get code => response?.statusCode;
 
   DataResponse({
-    @required this.entity,
+    required this.entity,
     this.result = false,
     this.response,
     this.totalPageNum = 1,
@@ -35,8 +36,8 @@ class DataResponse<T> {
 
   /// 拷贝
   DataResponse.copy(
-      {DataResponse dataResponse,
-      @required this.entity,
+      {required DataResponse dataResponse,
+      required this.entity,
       this.response,
       this.totalPageNum,
       this.result,
@@ -51,7 +52,7 @@ class DataResponse<T> {
 /// view层 配置用类  配置全局默认状态页
 class ViewConfig<VM extends BaseViewModel> {
   ViewConfig({
-    @required this.vm,
+    required this.vm,
     this.child,
     this.color,
     this.load = true,
@@ -67,7 +68,7 @@ class ViewConfig<VM extends BaseViewModel> {
   }
 
   ViewConfig.value({
-    @required this.vm,
+    required this.vm,
     this.child,
     this.color,
     this.load = false,
@@ -83,7 +84,7 @@ class ViewConfig<VM extends BaseViewModel> {
   }
 
   ViewConfig.noRoot({
-    @required this.vm,
+    required this.vm,
     this.child,
     this.color,
     this.load = true,
@@ -99,7 +100,7 @@ class ViewConfig<VM extends BaseViewModel> {
   }
 
   ViewConfig.noLoad({
-    @required this.vm,
+    required this.vm,
     this.child,
     this.color,
     this.load = false,
@@ -117,10 +118,10 @@ class ViewConfig<VM extends BaseViewModel> {
   /// VM
   VM vm;
 
-  Widget child;
+  Widget? child;
 
   /// 背景颜色
-  Color color;
+  Color? color;
 
   /// 加载
   bool load;
@@ -135,20 +136,20 @@ class ViewConfig<VM extends BaseViewModel> {
   bool checkEmpty;
 
   /// 页面变化控制  可以被其他页面控制刷新
-  int state;
+  int? state;
 
-  static VSBuilder gBusy;
-  static VSBuilder gEmpty;
-  static VSBuilder gError;
-  static VSBuilder gunAuthorized;
+  static VSBuilder? gBusy;
+  static VSBuilder? gEmpty;
+  static VSBuilder? gError;
+  static VSBuilder? gunAuthorized;
 
   /// 列表页  列表数据空
-  static VSBuilder gListDataEmpty;
+  static VSBuilder? gListDataEmpty;
 
-  VSBuilder<VM> busy;
-  VSBuilder<VM> empty;
-  VSBuilder<VM> error;
-  VSBuilder<VM> unAuthorized;
+  VSBuilder<VM>? busy;
+  VSBuilder<VM>? empty;
+  VSBuilder<VM>? error;
+  VSBuilder<VM>? unAuthorized;
 
   void setViewState() {
     this.busy ??= gBusy;
@@ -161,7 +162,7 @@ class ViewConfig<VM extends BaseViewModel> {
 /// 获取可用的监听 [ChangeNotifierProvider.value] 或者 [ChangeNotifierProvider]
 ChangeNotifierProvider availableCNP<T extends BaseViewModel>(
     BuildContext context, ViewConfig<T> changeNotifier,
-    {Widget child}) {
+    {required Widget? child}) {
   if (changeNotifier.value) {
     changeNotifier.vm = Provider.of<T>(context);
     return ChangeNotifierProvider<T>.value(
@@ -194,35 +195,35 @@ _ViewStateNotifier changerStateGet(int state) {
   if (!_changerState.containsKey(state)) {
     _changerState[state] = _ViewStateNotifier(ValueNotifier(false));
   }
-  return _changerState[state];
+  return _changerState[state]!;
 }
 
 /// 更新页面状态
 void changerStateUpdate(int state, {bool notifier = true}) {
   if (_changerState.containsKey(state)) {
-    _changerState[state].vn.value = true;
-    _changerState[state].notifier = notifier;
+    _changerState[state]!.vn.value = true;
+    _changerState[state]!.notifier = notifier;
   }
 }
 
 /// 验证是否需要变化
 ViewStateNotifier changerStateCheck(int state) {
-  var result = _changerState[state].vn.value;
-  _changerState[state].vn.value = false;
-  return ViewStateNotifier(result, _changerState[state].notifier);
+  var result = _changerState[state]!.vn.value;
+  _changerState[state]?.vn.value = false;
+  return ViewStateNotifier(result, _changerState[state]!.notifier);
 }
 
 /// 全局Model管理
 Map<String, BaseModel> _mList = {};
 
 /// 添加Model
-void addModel({List<BaseModel> list}) =>
+void addModel({required List<BaseModel> list}) =>
     list.forEach((element) => _addModel(element));
 
 _addModel(BaseModel model) => _mList[model.runtimeType.toString()] = model;
 
 /// 全局Model
-M getModelGlobal<M extends BaseModel>() => _mList[M.toString()];
+M getModelGlobal<M extends BaseModel>() => _mList[M.toString()] as M;
 
 /// 得到通知者
 T getVM<T extends ChangeNotifier>(BuildContext ctx, {bool listen: false}) =>
