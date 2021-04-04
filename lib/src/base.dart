@@ -17,7 +17,7 @@ import 'widget.dart';
 
 /// page build 的替换方法
 typedef VMBuilder<T extends BaseViewModel> = Widget Function(
-    BuildContext context, T viewModel, Widget? child, Widget state);
+    BuildContext context, T viewModel, Widget? child, Widget? state);
 
 /// page 状态页
 typedef VSBuilder<T extends BaseViewModel> = Widget Function(T vm);
@@ -120,7 +120,7 @@ abstract class BaseViewModel<M extends BaseModel, E extends BaseEntity>
   M? getModel() => null;
 
   /// entity 实体类 数据
-  late E? entity;
+  E? entity;
 
   /// 默认参数
   var defaultOfParams;
@@ -528,7 +528,7 @@ abstract class BaseListViewModel<M extends BaseModel, E extends BaseEntity, I>
 // View 页面 主要是[BaseView]和[BaseViewOfState]
 /// 页面状态展示 空 正常 错误 忙碌
 Widget _viewState<VM extends BaseViewModel>(
-    ViewConfig<VM> data, Widget Function(Widget state) builder) {
+    ViewConfig<VM> data, Widget Function(Widget? state) builder) {
   VM vm = data.vm;
   vm.checkEmpty = data.checkEmpty;
 
@@ -564,7 +564,7 @@ Widget _viewState<VM extends BaseViewModel>(
         ViewStateUnAuthWidget(onTap: () => vm.viewRefresh(rootRefresh: true));
   }
 
-  Widget view = builder(_widget!);
+  Widget view = builder(_widget);
 
   /// 添加背景颜色
   if (bgColor != null) view = Container(child: view, color: bgColor);
@@ -662,7 +662,7 @@ mixin BaseViewOfState<T extends StatefulWidget, VM extends BaseViewModel>
 
   /// VM 相关
   @protected
-  Widget vmBuild(BuildContext context, VM vm, Widget? child, Widget state);
+  Widget vmBuild(BuildContext context, VM vm, Widget? child, Widget? state);
 
   /// 初始化配置
   @protected
