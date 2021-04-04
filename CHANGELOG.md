@@ -1,8 +1,14 @@
-## 2.0.0
-新增Null safety
+## 2.0.3
+optimization package
+
+## 2.0.2
+Update all packages null safety
+
+## 2.0.1
+add Null safety
 
 ## 1.2.3
-修复 demo
+update demo
 
 去除BaseViewModel的context保存框架单纯度关于context使用全局或者fast_develop
 

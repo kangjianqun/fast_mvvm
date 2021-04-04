@@ -23,7 +23,7 @@ class UserModel extends BaseModel {
       ArticleItem("1", "好的", "内容内容内容内容内容", DateTime.now().toString()),
     ]);
 
-    DataResponse dataResponse =
+    DataResponse<ArticleEntity> dataResponse =
         DataResponse<ArticleEntity>(entity: entity, totalPageNum: 3);
     return dataResponse;
   }
@@ -41,14 +41,14 @@ class _AppState extends State<App> {
       [UserModel()],
       controllerBuild: () => EasyRefreshController(),
       resetRefreshState: (c) =>
-          (c as EasyRefreshController)?.resetRefreshState(),
-      finishRefresh: (c, {bool success, bool noMore}) =>
+          (c as EasyRefreshController).resetRefreshState(),
+      finishRefresh: (c, {bool success = true, bool noMore = false}) =>
           (c as EasyRefreshController)
-              ?.finishRefresh(success: success, noMore: noMore),
-      resetLoadState: (c) => (c as EasyRefreshController)?.resetLoadState(),
-      finishLoad: (c, {bool success, bool noMore}) =>
+              .finishRefresh(success: success, noMore: noMore),
+      resetLoadState: (c) => (c as EasyRefreshController).resetLoadState(),
+      finishLoad: (c, {bool success = true, bool noMore = false}) =>
           (c as EasyRefreshController)
-              ?.finishLoad(success: success, noMore: noMore),
+              .finishLoad(success: success, noMore: noMore),
     );
     super.initState();
   }
@@ -74,14 +74,14 @@ class SelectPage extends StatelessWidget with BaseView<SelectVM> {
 
   @override
   Widget vmBuild(
-      BuildContext context, SelectVM vm, Widget child, Widget state) {
+      BuildContext context, SelectVM vm, Widget? child, Widget? state) {
     return Scaffold(
       appBar: AppBar(title: Text("选择")),
       body: ListView(
         children: <Widget>[
           ListTile(
             title: Text("是否加载数据,用来测试状态页和重新加载数据"),
-            trailing: ValueListenableBuilder(
+            trailing: ValueListenableBuilder<bool>(
               valueListenable: vm.isLoadData,
               builder: (_, value, __) => Switch(
                 value: value,
@@ -91,7 +91,7 @@ class SelectPage extends StatelessWidget with BaseView<SelectVM> {
           ),
           ListTile(
             title: Text("是否单独配置状态页,用来测试状态页和重新加载数据"),
-            trailing: ValueListenableBuilder(
+            trailing: ValueListenableBuilder<bool>(
               valueListenable: vm.isConfigState,
               builder: (_, value, __) => Switch(
                 value: value,

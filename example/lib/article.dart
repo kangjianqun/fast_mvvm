@@ -30,30 +30,32 @@ class ArticleVM
   ValueNotifier<String> vnTime = ValueNotifier("暂无");
 
   @override
-  void jointList(ArticleEntity newEntity) => entity.list.addAll(newEntity.list);
+  void jointList(ArticleEntity newEntity) =>
+      entity?.list.addAll(newEntity.list);
 
   @override
-  List<ArticleItem> get list => entity?.list;
+  List<ArticleItem>? get list => entity?.list;
+
   @override
-  Future<DataResponse<ArticleEntity>> requestHttp(
-      {bool isLoad, int page, params}) {
+  Future<DataResponse<ArticleEntity>?>? requestHttp(
+      {required bool isLoad, int? page, params}) {
     /// 判断是否加载数据， 测试状态页用
     if (!isLoadData && firstLoad) {
       firstLoad = false;
       return null;
     }
-    return model.getArticleList();
+    return model!.getArticleList();
   }
 
   @override
   void initResultData() {
-    vnTime.value = list[0].time;
+    vnTime.value = list![0].time;
   }
 
   /// 修改第一个数据的时间
   void modifyFistTime() {
-    list[0].time = DateTime.now().toString();
-    vnTime.value = list[0].time;
+    list![0].time = DateTime.now().toString();
+    vnTime.value = list![0].time;
     notifyListeners();
   }
 }
@@ -61,7 +63,7 @@ class ArticleVM
 class ArticlePage extends StatelessWidget with BaseView<ArticleVM> {
   const ArticlePage(
     this.rootRefresh, {
-    Key key,
+    Key? key,
     this.configState = false,
     this.loadData = true,
   }) : super(key: key);
@@ -81,7 +83,7 @@ class ArticlePage extends StatelessWidget with BaseView<ArticleVM> {
 
   @override
   Widget vmBuild(
-      BuildContext context, ArticleVM vm, Widget child, Widget state) {
+      BuildContext context, ArticleVM vm, Widget? child, Widget? state) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(title: Text("文章")),
@@ -124,10 +126,10 @@ class ArticlePage extends StatelessWidget with BaseView<ArticleVM> {
                   onLoad: vm.loadMore,
                   onRefresh: vm.pullRefresh,
                   child: ListView.builder(
-                    itemCount: vm.list.length,
+                    itemCount: vm.list!.length,
                     itemBuilder: (ctx, index) {
                       return Selector<ArticleVM, ArticleItem>(
-                        selector: (_, aVM) => aVM.list[index],
+                        selector: (_, aVM) => aVM.list![index],
                         shouldRebuild: (pre, next) => pre == next,
                         builder: (_, ArticleItem value, __) => _item(value),
                       );

@@ -70,14 +70,14 @@ packages:
       name: fast_event_bus
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.0.1"
+    version: "2.0.0"
   fast_mvvm:
     dependency: "direct main"
     description:
       path: ".."
       relative: true
     source: path
-    version: "2.0.0"
+    version: "2.0.3"
   flutter:
     dependency: "direct main"
     description: flutter

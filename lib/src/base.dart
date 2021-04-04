@@ -27,14 +27,14 @@ typedef ResetRefreshState = void Function(dynamic controller);
 
 /// 上拉加载 下拉刷新 完成刷新方法
 typedef FinishRefresh = void Function(dynamic controller,
-    {bool? success, bool? noMore});
+    {bool success, bool noMore});
 
 /// 上拉加载 下拉刷新 重置加载状态方法
 typedef ResetLoadState = void Function(dynamic controller);
 
 /// 上拉加载 下拉刷新 完成加载方法
 typedef FinishLoad = void Function(dynamic controller,
-    {bool? success, bool? noMore});
+    {bool success, bool noMore});
 
 /// 上拉加载 下拉刷新的控制器
 typedef ControllerBuild = dynamic Function();
@@ -120,7 +120,7 @@ abstract class BaseViewModel<M extends BaseModel, E extends BaseEntity>
   M? getModel() => null;
 
   /// entity 实体类 数据
-  E? entity;
+  late E? entity;
 
   /// 默认参数
   var defaultOfParams;
@@ -309,7 +309,7 @@ abstract class BaseViewModel<M extends BaseModel, E extends BaseEntity>
       if (checkEmpty && (data == null || data.entity == null)) {
         return false;
       } else {
-        entity = data!.entity;
+        entity = data!.entity!;
         initResultData();
         return true;
       }
@@ -331,7 +331,7 @@ abstract class BaseViewModel<M extends BaseModel, E extends BaseEntity>
   Future<DataResponse<E>?> requestData(bool isLoad, int page) async => null;
 
   /// http请求
-  Future<DataResponse<E>?> requestHttp(
+  Future<DataResponse<E>?>? requestHttp(
           {required bool isLoad, int? page, params}) async =>
       null;
 
@@ -406,7 +406,7 @@ abstract class BaseListViewModel<M extends BaseModel, E extends BaseEntity, I>
   }
 
   /// 完成下拉刷新
-  finishRefresh(controller, {bool? success, bool? noMore}) {
+  finishRefresh(controller, {bool success = true, bool noMore = false}) {
     if (_finishRefresh != null && controller != null)
       _finishRefresh!(controller, success: success, noMore: noMore);
   }
@@ -418,7 +418,7 @@ abstract class BaseListViewModel<M extends BaseModel, E extends BaseEntity, I>
   }
 
   /// 完成上拉加载
-  finishLoad(controller, {bool? success, bool? noMore}) {
+  finishLoad(controller, {bool success = true, bool noMore = false}) {
     if (_finishLoad != null && controller != null)
       _finishLoad!(controller, success: success, noMore: noMore);
   }
@@ -438,7 +438,7 @@ abstract class BaseListViewModel<M extends BaseModel, E extends BaseEntity, I>
     if (isLoad)
       jointList(data.entity!);
     else
-      entity = data.entity;
+      entity = data.entity!;
     return judgeNull(data);
   }
 
@@ -628,7 +628,7 @@ mixin BaseView<VM extends BaseViewModel> on StatelessWidget {
 
   /// VM 相关
   @protected
-  Widget vmBuild(BuildContext context, VM vm, Widget? child, Widget state);
+  Widget vmBuild(BuildContext context, VM vm, Widget? child, Widget? state);
 
   /// 初始化操作 加载等
   _init(BuildContext context, ViewConfig<VM> config) async {
