@@ -397,6 +397,7 @@ abstract class BaseListViewModel<M extends BaseModel, E extends BaseEntity, I>
 
   dynamic _refreshController =
       _controllerBuild == null ? null : _controllerBuild!();
+
   get refreshController => _refreshController;
 
   /// 重置下拉刷新状态
@@ -666,7 +667,7 @@ mixin BaseViewOfState<T extends StatefulWidget, VM extends BaseViewModel>
 
   /// 初始化配置
   @protected
-  ViewConfig<VM> initConfig(BuildContext context);
+  ViewConfig<VM>? initConfig(BuildContext context);
 
   /// 因为[mixin]在[vmBuild] 之前 执行自定义方法
   /// 场景 [AutomaticKeepAliveClientMixin]
