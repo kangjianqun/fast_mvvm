@@ -1,3 +1,6 @@
+## 2.0.5
+Optimize air safety
+
 ## 2.0.4
 optimization package
 

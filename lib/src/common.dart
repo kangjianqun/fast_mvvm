@@ -7,7 +7,7 @@ import 'base.dart';
 
 /// 接口数据 响应
 class DataResponse<T> {
-  T entity;
+  T? entity;
 
   /// 最终结果
   bool? result;
