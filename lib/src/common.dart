@@ -10,7 +10,7 @@ class DataResponse<T> {
   T? entity;
 
   /// 最终结果
-  bool? result;
+  bool result;
 
   /// dio 的默认
   Response? response;
@@ -35,16 +35,16 @@ class DataResponse<T> {
   });
 
   /// 拷贝
-  DataResponse.copy(
-      {required DataResponse dataResponse,
-      required this.entity,
-      this.response,
-      this.totalPageNum,
-      this.result,
-      this.extend}) {
+  DataResponse.copy({
+    required DataResponse dataResponse,
+    required this.entity,
+    required this.result,
+    this.response,
+    this.totalPageNum,
+    this.extend,
+  }) {
     response ??= dataResponse.response;
     totalPageNum ??= dataResponse.totalPageNum;
-    result ??= dataResponse.result;
     extend ??= dataResponse.extend;
   }
 }
