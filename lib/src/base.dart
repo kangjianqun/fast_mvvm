@@ -322,17 +322,17 @@ abstract class BaseViewModel<M extends BaseModel, E extends BaseEntity>
   /// 判断http或者data
   Future<DataResponse<E?>?> _httpOrData(bool isLoad, int page, param) async {
     return isHttp()
-        ? await requestHttp(
-            isLoad: isLoad, page: page, params: param ?? defaultOfParams)
-        : await requestData(isLoad, page);
+        ? await requestHttp(isLoad, page, params: param ?? defaultOfParams)
+        : await requestData(isLoad, page, params: param ?? defaultOfParams);
   }
 
   /// 非http请求
-  Future<DataResponse<E>?> requestData(bool isLoad, int page) async => null;
+  Future<DataResponse<E>?> requestData(bool isLoad, int page, {params}) async =>
+      null;
 
   /// http请求
-  Future<DataResponse<E>?>? requestHttp(
-          {required bool isLoad, int? page, params}) async =>
+  Future<DataResponse<E>?>? requestHttp(bool isLoad, int page,
+          {params}) async =>
       null;
 
   /// 初始化返回数据

@@ -37,14 +37,14 @@ class ArticleVM
   List<ArticleItem>? get list => entity?.list;
 
   @override
-  Future<DataResponse<ArticleEntity>?>? requestHttp(
-      {required bool isLoad, int? page, params}) {
+  Future<DataResponse<ArticleEntity>?>? requestHttp(bool isLoad, int page,
+      {params}) {
     /// 判断是否加载数据， 测试状态页用
     if (!isLoadData && firstLoad) {
       firstLoad = false;
       return null;
     }
-    return model!.getArticleList();
+    return model.getArticleList();
   }
 
   @override

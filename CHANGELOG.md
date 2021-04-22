@@ -1,3 +1,8 @@
+## 2.0.7
+Optimization
+1. requestData
+2. requestHttp
+
 ## 2.0.6
 Optimize null safety
 
