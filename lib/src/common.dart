@@ -68,7 +68,6 @@ class ViewConfig<VM extends BaseViewModel> {
   }
 
   ViewConfig.value({
-    required this.vm,
     this.child,
     this.color,
     this.load = false,
@@ -116,7 +115,7 @@ class ViewConfig<VM extends BaseViewModel> {
   }
 
   /// VM
-  VM vm;
+  late VM vm;
 
   Widget? child;
 

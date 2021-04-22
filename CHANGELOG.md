@@ -1,5 +1,8 @@
+## 2.0.6
+Optimize null safety
+
 ## 2.0.5
-Optimize air safety
+Optimize null safety
 
 ## 2.0.4
 optimization package

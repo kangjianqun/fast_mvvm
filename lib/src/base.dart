@@ -115,7 +115,7 @@ abstract class BaseViewModel<M extends BaseModel, E extends BaseEntity>
   }
 
   /// model API
-  M? model;
+  late M model;
 
   M? getModel() => null;
 
