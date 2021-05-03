@@ -67,11 +67,13 @@ void initMVVM<VM extends BaseViewModel>(
   initPageSize(width?.toDouble(), height?.toDouble());
 
   BaseListViewModel.pageFirst = initPage;
-  ViewConfig.gBusy = busy as VSBuilder;
-  ViewConfig.gEmpty = empty as VSBuilder;
-  ViewConfig.gError = error as VSBuilder;
-  ViewConfig.gunAuthorized = unAuthorized as VSBuilder;
-  ViewConfig.gListDataEmpty = listDataEmpty as VSBuilder;
+  if (busy != null) ViewConfig.gBusy = busy as VSBuilder;
+  if (empty != null) ViewConfig.gEmpty = empty as VSBuilder;
+  if (error != null) ViewConfig.gError = error as VSBuilder;
+  if (unAuthorized != null)
+    ViewConfig.gunAuthorized = unAuthorized as VSBuilder;
+  if (listDataEmpty != null)
+    ViewConfig.gListDataEmpty = listDataEmpty as VSBuilder;
 
   dataOfHttpOrData ??= (vm) => true;
   BaseViewModel._dataFromNetworkOrDatabase = dataOfHttpOrData;
@@ -613,19 +615,26 @@ ChangeNotifierProvider _root<VM extends BaseViewModel>(
         return true;
       },
       builder: (ctx, value, child) => _viewState<VM>(
-          config, (state) => builder(ctx, config.vm, child, state)),
+        config,
+        (state) => statusOrViewDisplay(
+          state: () => config.isStatusPage! ? null : state,
+          view: () => builder(ctx, config.vm, child, state),
+        ),
+      ),
     ),
   );
 }
 
 /// 基类 view 扩展[StatelessWidget]
 mixin BaseView<VM extends BaseViewModel> on StatelessWidget {
-  /// 得到[VM]  通过[getVM]实现
-  VM vm(BuildContext context) => getVM(context);
+  late final ViewConfig<VM> _config;
+
+  /// 新的vm  方法
+  VM get vm => _config.vm;
 
   /// 初始化配置
   @protected
-  ViewConfig<VM>? initConfig(BuildContext context);
+  ViewConfig<VM> initConfig(BuildContext context);
 
   /// VM 相关
   @protected
@@ -641,25 +650,24 @@ mixin BaseView<VM extends BaseViewModel> on StatelessWidget {
   @override
   Widget build(BuildContext ctx) {
 //    print('---- BaseViewModel build');
-    var config = initConfig(ctx);
-    if (config == null) throw "initConfig 方法 返回空值";
+    _config = initConfig(ctx);
 
     /// 是否需要加载
-    if (!config.load) return _root<VM>(ctx, config, vmBuild);
+    if (!_config.load) return _root<VM>(ctx, _config, vmBuild);
 
     return FutureBuilder(
-        future: _init(ctx, config),
-        builder: (ctx, __) => _root<VM>(ctx, config, vmBuild));
+        future: _init(ctx, _config),
+        builder: (ctx, __) => _root<VM>(ctx, _config, vmBuild));
   }
 }
 
 /// 基类 state 扩展[StatefulWidget] 的 [State]
 mixin BaseViewOfState<T extends StatefulWidget, VM extends BaseViewModel>
     on State<T> {
-  ViewConfig<VM>? _config;
+  late ViewConfig<VM> _config;
 
-  /// 得到[VM]
-  VM? vm() => _config?.vm;
+  /// 新的vm  方法
+  VM get vm => _config.vm;
 
   /// VM 相关
   @protected
@@ -667,7 +675,7 @@ mixin BaseViewOfState<T extends StatefulWidget, VM extends BaseViewModel>
 
   /// 初始化配置
   @protected
-  ViewConfig<VM>? initConfig(BuildContext context);
+  ViewConfig<VM> initConfig(BuildContext context);
 
   /// 因为[mixin]在[vmBuild] 之前 执行自定义方法
   /// 场景 [AutomaticKeepAliveClientMixin]
@@ -678,10 +686,7 @@ mixin BaseViewOfState<T extends StatefulWidget, VM extends BaseViewModel>
   @override
   void initState() {
     _config = initConfig(context);
-    if (_config == null) {
-      throw "initConfig 方法 返回空值";
-    }
-    if (_config!.load) _config!.vm.viewRefresh();
+    if (_config.load) _config.vm.viewRefresh();
     super.initState();
   }
 
@@ -691,6 +696,6 @@ mixin BaseViewOfState<T extends StatefulWidget, VM extends BaseViewModel>
   Widget build(BuildContext context) {
     mixinBuild(context);
 //    LogUtil.printLog("build:----" + this.runtimeType.toString());
-    return _root<VM>(context, _config!, vmBuild);
+    return _root<VM>(context, _config, vmBuild);
   }
 }

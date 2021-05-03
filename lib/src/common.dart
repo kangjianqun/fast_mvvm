@@ -63,6 +63,7 @@ class ViewConfig<VM extends BaseViewModel> {
     this.empty,
     this.error,
     this.unAuthorized,
+    this.isStatusPage,
   }) : this.root = true {
     setViewState();
   }
@@ -78,6 +79,7 @@ class ViewConfig<VM extends BaseViewModel> {
     this.empty,
     this.error,
     this.unAuthorized,
+    this.isStatusPage,
   }) : this.root = true {
     setViewState();
   }
@@ -94,6 +96,7 @@ class ViewConfig<VM extends BaseViewModel> {
     this.empty,
     this.error,
     this.unAuthorized,
+    this.isStatusPage,
   }) : this.root = false {
     setViewState();
   }
@@ -110,6 +113,7 @@ class ViewConfig<VM extends BaseViewModel> {
     this.empty,
     this.error,
     this.unAuthorized,
+    this.isStatusPage,
   }) : this.root = true {
     setViewState();
   }
@@ -137,10 +141,14 @@ class ViewConfig<VM extends BaseViewModel> {
   /// 页面变化控制  可以被其他页面控制刷新
   int? state;
 
+  ///是否自己处理状态页面
+  bool? isStatusPage;
+
   static VSBuilder? gBusy;
   static VSBuilder? gEmpty;
   static VSBuilder? gError;
   static VSBuilder? gunAuthorized;
+  static bool gIsStatusPage = false;
 
   /// 列表页  列表数据空
   static VSBuilder? gListDataEmpty;
@@ -155,6 +163,7 @@ class ViewConfig<VM extends BaseViewModel> {
     this.empty ??= gEmpty;
     this.error ??= gError;
     this.unAuthorized ??= gunAuthorized;
+    this.isStatusPage ??= gIsStatusPage;
   }
 }
 

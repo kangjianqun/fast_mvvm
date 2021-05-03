@@ -38,7 +38,7 @@ class _AppState extends State<App> {
   @override
   void initState() {
     initMVVM<BaseViewModel>(
-      [UserModel()],
+      [BaseModel(), UserModel()],
       controllerBuild: () => EasyRefreshController(),
       resetRefreshState: (c) =>
           (c as EasyRefreshController).resetRefreshState(),
@@ -70,11 +70,10 @@ class SelectVM extends BaseViewModel {
 class SelectPage extends StatelessWidget with BaseView<SelectVM> {
   @override
   ViewConfig<SelectVM> initConfig(BuildContext context) =>
-      ViewConfig(vm: SelectVM());
+      ViewConfig.noLoad(vm: SelectVM());
 
   @override
-  Widget vmBuild(
-      BuildContext context, SelectVM vm, Widget? child, Widget? state) {
+  Widget vmBuild(context, SelectVM vm, Widget? child, Widget? state) {
     return Scaffold(
       appBar: AppBar(title: Text("选择")),
       body: ListView(

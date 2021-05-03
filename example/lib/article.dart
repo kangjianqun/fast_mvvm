@@ -61,7 +61,7 @@ class ArticleVM
 }
 
 class ArticlePage extends StatelessWidget with BaseView<ArticleVM> {
-  const ArticlePage(
+  ArticlePage(
     this.rootRefresh, {
     Key? key,
     this.configState = false,
@@ -82,8 +82,7 @@ class ArticlePage extends StatelessWidget with BaseView<ArticleVM> {
   }
 
   @override
-  Widget vmBuild(
-      BuildContext context, ArticleVM vm, Widget? child, Widget? state) {
+  Widget vmBuild(context, ArticleVM vm, Widget? child, Widget? state) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(title: Text("文章")),
@@ -109,36 +108,35 @@ class ArticlePage extends StatelessWidget with BaseView<ArticleVM> {
                 ],
               ),
             ),
-      body: state ??
-          Column(
-            children: <Widget>[
-              Container(
-                height: 100,
-                color: Colors.red,
-                alignment: Alignment.center,
-                child: Text("假装这是广告，用来测试ListOrGridEmpty"),
-              ),
-              ListOrGridEmpty.max(
-                vm: vm,
-                useViewSizeType: true,
-                childBuild: () => EasyRefresh(
-                  controller: vm.refreshController,
-                  onLoad: vm.loadMore,
-                  onRefresh: vm.pullRefresh,
-                  child: ListView.builder(
-                    itemCount: vm.list!.length,
-                    itemBuilder: (ctx, index) {
-                      return Selector<ArticleVM, ArticleItem>(
-                        selector: (_, aVM) => aVM.list![index],
-                        shouldRebuild: (pre, next) => pre == next,
-                        builder: (_, ArticleItem value, __) => _item(value),
-                      );
-                    },
-                  ),
-                ),
-              ),
-            ],
+      body: Column(
+        children: <Widget>[
+          Container(
+            height: 100,
+            color: Colors.red,
+            alignment: Alignment.center,
+            child: Text("假装这是广告，用来测试ListOrGridEmpty"),
           ),
+          ListOrGridEmpty.max(
+            vm: vm,
+            useViewSizeType: true,
+            childBuild: () => EasyRefresh(
+              controller: vm.refreshController,
+              onLoad: vm.loadMore,
+              onRefresh: vm.pullRefresh,
+              child: ListView.builder(
+                itemCount: vm.list!.length,
+                itemBuilder: (ctx, index) {
+                  return Selector<ArticleVM, ArticleItem>(
+                    selector: (_, aVM) => aVM.list![index],
+                    shouldRebuild: (pre, next) => pre == next,
+                    builder: (_, ArticleItem value, __) => _item(value),
+                  );
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

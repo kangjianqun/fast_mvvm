@@ -1,3 +1,9 @@
+## 2.0.8
+1. repair demo
+2. widget add statusOrViewDisplay
+3. ViewConfig add isStatusPage
+4. BaseView and BaseViewOfState add  VM get vm => _config.vm;
+
 ## 2.0.7
 Optimization
 1. requestData

@@ -8,6 +8,12 @@ import 'common.dart';
 double _pageWidth = 1080;
 double _pageHeight = 1920;
 
+/// 状态或视图显示
+Widget statusOrViewDisplay(
+    {required Widget? Function() state, required Widget Function() view}) {
+  return state() == null ? view() : state()!;
+}
+
 /// 初始化页面大小 注意适配宽高 还有标题栏高度
 void initPageSize(double? width, double? height) {
   if (height != null) _pageHeight = height;
