@@ -1,3 +1,6 @@
+## 2.0.9
+1. BaseView modify initConfig method
+
 ## 2.0.8
 1. repair demo
 2. widget add statusOrViewDisplay

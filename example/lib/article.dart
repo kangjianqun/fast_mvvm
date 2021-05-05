@@ -74,7 +74,7 @@ class ArticlePage extends StatelessWidget with BaseView<ArticleVM> {
   final bool loadData;
 
   @override
-  ViewConfig<ArticleVM> initConfig(BuildContext context) {
+  ViewConfig<ArticleVM> initConfig() {
     var _empty = configState ? (vm) => Center(child: Text("单独配置：empty")) : null;
     return rootRefresh
         ? ViewConfig<ArticleVM>(vm: ArticleVM(loadData), empty: _empty)

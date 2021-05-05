@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:dio/dio.dart';
 import 'package:fast_event_bus/fast_event_bus.dart';
 import 'package:fast_mvvm/fast_mvvm.dart';
@@ -627,14 +626,14 @@ ChangeNotifierProvider _root<VM extends BaseViewModel>(
 
 /// 基类 view 扩展[StatelessWidget]
 mixin BaseView<VM extends BaseViewModel> on StatelessWidget {
-  late final ViewConfig<VM> _config;
+  late final ViewConfig<VM> _config = initConfig();
 
   /// 新的vm  方法
   VM get vm => _config.vm;
 
   /// 初始化配置
   @protected
-  ViewConfig<VM> initConfig(BuildContext context);
+  ViewConfig<VM> initConfig();
 
   /// VM 相关
   @protected
@@ -649,9 +648,6 @@ mixin BaseView<VM extends BaseViewModel> on StatelessWidget {
   @deprecated
   @override
   Widget build(BuildContext ctx) {
-//    print('---- BaseViewModel build');
-    _config = initConfig(ctx);
-
     /// 是否需要加载
     if (!_config.load) return _root<VM>(ctx, _config, vmBuild);
 

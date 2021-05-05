@@ -69,8 +69,7 @@ class SelectVM extends BaseViewModel {
 
 class SelectPage extends StatelessWidget with BaseView<SelectVM> {
   @override
-  ViewConfig<SelectVM> initConfig(BuildContext context) =>
-      ViewConfig.noLoad(vm: SelectVM());
+  ViewConfig<SelectVM> initConfig() => ViewConfig.noLoad(vm: SelectVM());
 
   @override
   Widget vmBuild(context, SelectVM vm, Widget? child, Widget? state) {
