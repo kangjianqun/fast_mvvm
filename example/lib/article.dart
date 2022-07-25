@@ -23,6 +23,7 @@ class ArticleItem {
 class ArticleVM
     extends BaseListViewModel<UserModel, ArticleEntity, ArticleItem> {
   ArticleVM(this.isLoadData);
+
   bool isLoadData = true;
 
   /// 首次加载
@@ -75,19 +76,21 @@ class ArticlePage extends StatelessWidget with BaseView<ArticleVM> {
 
   @override
   ViewConfig<ArticleVM> initConfig() {
-    var _empty = configState ? (vm) => Center(child: Text("单独配置：empty")) : null;
+    var empty = configState
+        ? (vm) => const Scaffold(body: Center(child: Text("单独配置：empty")))
+        : null;
     return rootRefresh
-        ? ViewConfig<ArticleVM>(vm: ArticleVM(loadData), empty: _empty)
-        : ViewConfig<ArticleVM>.noRoot(vm: ArticleVM(loadData), empty: _empty);
+        ? ViewConfig<ArticleVM>(vm: ArticleVM(loadData), empty: empty)
+        : ViewConfig<ArticleVM>.noRoot(vm: ArticleVM(loadData), empty: empty);
   }
 
   @override
-  Widget vmBuild(context, ArticleVM vm, Widget? child, Widget? state) {
+  Widget vBuild(context, ArticleVM vm, Widget? child, Widget? state) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(title: Text("文章")),
+      appBar: AppBar(title: const Text("文章")),
       bottomNavigationBar: state != null
-          ? SizedBox()
+          ? const SizedBox()
           : Container(
               color: Colors.amber,
               child: Column(
@@ -96,7 +99,7 @@ class ArticlePage extends StatelessWidget with BaseView<ArticleVM> {
                   MaterialButton(
                     onPressed: vm.modifyFistTime,
                     color: Colors.white,
-                    child: Text("修改第一个Item时间,测试全局刷新"),
+                    child: const Text("修改第一个Item时间,测试全局刷新"),
                   ),
                   ValueListenableBuilder<String>(
                     valueListenable: vm.vnTime,
@@ -114,15 +117,15 @@ class ArticlePage extends StatelessWidget with BaseView<ArticleVM> {
             height: 100,
             color: Colors.red,
             alignment: Alignment.center,
-            child: Text("假装这是广告，用来测试ListOrGridEmpty"),
+            child: const Text("假装这是广告，用来测试ListOrGridEmpty"),
           ),
           ListOrGridEmpty.max(
             vm: vm,
             useViewSizeType: true,
             childBuild: () => EasyRefresh(
               controller: vm.refreshController,
-              onLoad: vm.loadMore,
-              onRefresh: vm.pullRefresh,
+              onLoad: () => vm.loadMore(globalRefresh: rootRefresh),
+              onRefresh: () => vm.pullRefresh(globalRefresh: rootRefresh),
               child: ListView.builder(
                 itemCount: vm.list!.length,
                 itemBuilder: (ctx, index) {
@@ -143,8 +146,8 @@ class ArticlePage extends StatelessWidget with BaseView<ArticleVM> {
   Widget _item(ArticleItem item) {
     return Container(
       color: Colors.lightGreen,
-      margin: EdgeInsets.all(8),
-      padding: EdgeInsets.all(4),
+      margin: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(4),
       child: Column(
         children: <Widget>[
           Row(

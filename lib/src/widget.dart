@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 
 import 'base.dart';
@@ -238,9 +237,11 @@ class ViewStateWidget extends StatelessWidget {
     this.image,
     this.message,
     this.buttonText,
+    this.backgroundColor,
     required this.onTap,
   }) : super(key: key);
 
+  final Color? backgroundColor;
   final String? message;
   final Widget? image;
   final Widget? buttonText;
@@ -248,24 +249,29 @@ class ViewStateWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          image ?? Icon(Icons.error_outline, size: 48, color: Colors.grey[500]),
-          Padding(
-            padding: EdgeInsets.only(top: 48, bottom: 88),
-            child: Text(
-              message ?? "加载失败",
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyText2!
-                  .copyWith(color: Colors.grey),
+    return Container(
+      color: backgroundColor ?? Colors.white,
+      alignment: Alignment.center,
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            image ??
+                Icon(Icons.error_outline, size: 48, color: Colors.grey[500]),
+            Padding(
+              padding: EdgeInsets.only(top: 48, bottom: 88),
+              child: Text(
+                message ?? "加载失败",
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyText2!
+                    .copyWith(color: Colors.grey),
+              ),
             ),
-          ),
-          ViewStateButton(child: buttonText, onTap: onTap)
-        ],
+            ViewStateButton(child: buttonText, onTap: onTap)
+          ],
+        ),
       ),
     );
   }
@@ -334,6 +340,7 @@ class ViewStateButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      onTap: onTap,
       child: child ??
           Container(
             padding: EdgeInsets.fromLTRB(32, 8, 32, 8),
@@ -341,12 +348,8 @@ class ViewStateButton extends StatelessWidget {
               border: Border.all(),
               borderRadius: BorderRadius.horizontal(),
             ),
-            child: Text(
-              "重试",
-              style: TextStyle(fontSize: 50),
-            ),
+            child: Text("重试", style: TextStyle(fontSize: 50)),
           ),
-      onTap: onTap,
     );
   }
 }

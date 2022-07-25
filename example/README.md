@@ -1,6 +1,6 @@
-# fast_mvvm_example
+# example
 
-Demonstrates how to use the fast_mvvm plugin.
+fast_mvvm example
 
 ## Getting Started
 

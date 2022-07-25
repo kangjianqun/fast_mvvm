@@ -1,23 +1,23 @@
 name: fast_mvvm
 description: Implemented using the MVVM architecture, quickly build projects to help consumers focus only on the business implementation
-version: 2.0.9
+version: 2.1.2
 homepage: https://github.com/StrangerKjq/fast_mvvm
 
 environment:
-  sdk: ">=2.12.0 <3.0.0"
-  flutter: ">=2.0.0"
+  sdk: ">=2.17.0 <3.0.0"
+  flutter: ">=3.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
 
   #  https://pub.flutter-io.cn/packages/provider
-  provider: ^5.0.0
+  provider: ^6.0.3
 
   # https://pub.flutter-io.cn/packages/dio
-  dio: ^4.0.0
+  dio: ^4.0.6
 
-  fast_event_bus: ^2.0.1
+  fast_event_bus: ^2.0.2
 
 dev_dependencies:
   flutter_test:

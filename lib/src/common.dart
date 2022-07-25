@@ -64,8 +64,10 @@ class ViewConfig<VM extends BaseViewModel> {
     this.error,
     this.unAuthorized,
     this.isStatusPage,
-  }) : this.root = true {
+    root = true,
+  }) {
     setViewState();
+    vm.rootRefresh = root;
   }
 
   ViewConfig.value({
@@ -80,8 +82,10 @@ class ViewConfig<VM extends BaseViewModel> {
     this.error,
     this.unAuthorized,
     this.isStatusPage,
-  }) : this.root = true {
+    root = true,
+  }) {
     setViewState();
+    vm.rootRefresh = root;
   }
 
   ViewConfig.noRoot({
@@ -97,8 +101,10 @@ class ViewConfig<VM extends BaseViewModel> {
     this.error,
     this.unAuthorized,
     this.isStatusPage,
-  }) : this.root = false {
+    root = false,
+  }) {
     setViewState();
+    vm.rootRefresh = root;
   }
 
   ViewConfig.noLoad({
@@ -114,8 +120,10 @@ class ViewConfig<VM extends BaseViewModel> {
     this.error,
     this.unAuthorized,
     this.isStatusPage,
-  }) : this.root = true {
+    root = true,
+  }) {
     setViewState();
+    vm.rootRefresh = root;
   }
 
   /// VM
@@ -128,9 +136,6 @@ class ViewConfig<VM extends BaseViewModel> {
 
   /// 加载
   bool load;
-
-  /// 是否根布局刷新 采用 [Selector]
-  bool root;
 
   /// [ChangeNotifierProvider.value] 或者[ChangeNotifierProvider]
   bool value;
@@ -184,6 +189,7 @@ ChangeNotifierProvider availableCNP<T extends BaseViewModel>(
 class _ViewStateNotifier {
   ValueNotifier<bool> vn;
   bool notifier;
+
   _ViewStateNotifier(this.vn, {this.notifier = true});
 }
 

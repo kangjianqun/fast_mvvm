@@ -2,9 +2,10 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/fast_mvvm.iml" filepath="$PROJECT_DIR$/fast_mvvm.iml" />
+      <module fileurl="file://$PROJECT_DIR$/example/example.iml" filepath="$PROJECT_DIR$/example/example.iml" />
       <module fileurl="file://$PROJECT_DIR$/android/fast_mvvm_android.iml" filepath="$PROJECT_DIR$/android/fast_mvvm_android.iml" />
       <module fileurl="file://$PROJECT_DIR$/example/android/fast_mvvm_example_android.iml" filepath="$PROJECT_DIR$/example/android/fast_mvvm_example_android.iml" />
+      <module fileurl="file://$PROJECT_DIR$/fast_router.iml" filepath="$PROJECT_DIR$/fast_router.iml" />
     </modules>
   </component>
 </project>

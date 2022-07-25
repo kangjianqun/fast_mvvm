@@ -1,12 +1,10 @@
 import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:fast_event_bus/fast_event_bus.dart';
 import 'package:fast_mvvm/fast_mvvm.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
-
-import 'common.dart';
-import 'widget.dart';
 
 // 基于MVVM架构设计
 // Entity 数据实体类
@@ -26,14 +24,14 @@ typedef ResetRefreshState = void Function(dynamic controller);
 
 /// 上拉加载 下拉刷新 完成刷新方法
 typedef FinishRefresh = void Function(dynamic controller,
-    {bool success, bool noMore});
+    {required bool success, required bool noMore});
 
 /// 上拉加载 下拉刷新 重置加载状态方法
 typedef ResetLoadState = void Function(dynamic controller);
 
 /// 上拉加载 下拉刷新 完成加载方法
 typedef FinishLoad = void Function(dynamic controller,
-    {bool success, bool noMore});
+    {required bool success, required bool noMore});
 
 /// 上拉加载 下拉刷新的控制器
 typedef ControllerBuild = dynamic Function();
@@ -47,18 +45,18 @@ void initMVVM<VM extends BaseViewModel>(
   List<BaseModel> models, {
   int initPage = 1,
   DataFromNetworkOrDatabase? dataOfHttpOrData,
-  VSBuilder<VM>? busy,
-  VSBuilder<VM>? empty,
-  VSBuilder<VM>? error,
-  VSBuilder<VM>? unAuthorized,
-  VSBuilder<VM>? listDataEmpty,
+  VSBuilder<VM>? busy, //全局状态配置
+  VSBuilder<VM>? empty, //全局状态配置
+  VSBuilder<VM>? error, //全局状态配置
+  VSBuilder<VM>? unAuthorized, //全局状态配置
+  VSBuilder<VM>? listDataEmpty, //全局状态配置
   ResetRefreshState? resetRefreshState,
   FinishRefresh? finishRefresh,
   ResetLoadState? resetLoadState,
   FinishLoad? finishLoad,
   ControllerBuild? controllerBuild,
-  num? height,
-  num? width,
+  num? height, // 高度
+  num? width, // 宽度
 }) {
   /// 载入model 后期调用API
   addModel(list: models);
@@ -127,7 +125,10 @@ abstract class BaseViewModel<M extends BaseModel, E extends BaseEntity>
   var defaultOfParams;
 
   /// 主动全局刷新 用在首次跟下拉刷新和上拉加载
-  bool _activeGlobalRefresh = true;
+  bool _activeGlobalRefresh = false;
+
+  ///根布局刷新
+  bool rootRefresh = false;
 
   /// 判断List 空的简便方法
   bool checkEmpty = true;
@@ -481,14 +482,15 @@ abstract class BaseListViewModel<M extends BaseModel, E extends BaseEntity, I>
   }
 
   /// 下拉刷新
-  Future<void> pullRefresh({bool globalRefresh = true}) async {
-    return pageRefresh(busy: false, globalRefresh: globalRefresh);
+  Future<void> pullRefresh({bool? globalRefresh}) async {
+    return pageRefresh(
+        busy: false, globalRefresh: globalRefresh ?? rootRefresh);
   }
 
   /// 上拉加载更多
-  Future<void> loadMore({bool globalRefresh = true}) async {
+  Future<void> loadMore({bool? globalRefresh}) async {
 //    print('------> current: $_currentPageNum  total: $_totalPageNum');
-    _activeGlobalRefresh = globalRefresh;
+    _activeGlobalRefresh = globalRefresh ?? rootRefresh;
     if (_currentPageNum >= _totalPageNum) {
       finishLoad(_refreshController, success: true, noMore: true);
     } else {
@@ -520,7 +522,8 @@ abstract class BaseListViewModel<M extends BaseModel, E extends BaseEntity, I>
   void dispose() {
     try {
       if (_refreshController != null) _refreshController.dispose();
-    } catch (e) {} finally {
+    } catch (e) {
+    } finally {
       _refreshController = null;
     }
     super.dispose();
@@ -608,7 +611,7 @@ ChangeNotifierProvider _root<VM extends BaseViewModel>(
       child: config.child,
       selector: (ctx, vm) => vm.entity,
       shouldRebuild: (_, __) {
-        if (config.root) return true;
+        if (config.vm.rootRefresh) return true;
         if (!config.vm._activeGlobalRefresh) return false;
         config.vm._activeGlobalRefresh = false;
         return true;
@@ -626,10 +629,8 @@ ChangeNotifierProvider _root<VM extends BaseViewModel>(
 
 /// 基类 view 扩展[StatelessWidget]
 mixin BaseView<VM extends BaseViewModel> on StatelessWidget {
-  late final ViewConfig<VM> _config = initConfig();
-
   /// 新的vm  方法
-  VM get vm => _config.vm;
+  VM get vm => initConfig().vm;
 
   /// 初始化配置
   @protected
@@ -637,30 +638,32 @@ mixin BaseView<VM extends BaseViewModel> on StatelessWidget {
 
   /// VM 相关
   @protected
-  Widget vmBuild(BuildContext context, VM vm, Widget? child, Widget? state);
+  Widget vBuild(BuildContext context, VM vm, Widget? child, Widget? state);
 
   /// 初始化操作 加载等
   _init(BuildContext context, ViewConfig<VM> config) async {
     if (config.load) await config.vm.viewRefresh();
   }
 
-  /// 使用 [vmBuild]
+  /// 使用 [vBuild]
   @deprecated
   @override
   Widget build(BuildContext ctx) {
+    ViewConfig<VM> _config = initConfig();
+
     /// 是否需要加载
-    if (!_config.load) return _root<VM>(ctx, _config, vmBuild);
+    if (!_config.load) return _root<VM>(ctx, _config, vBuild);
 
     return FutureBuilder(
         future: _init(ctx, _config),
-        builder: (ctx, __) => _root<VM>(ctx, _config, vmBuild));
+        builder: (ctx, __) => _root<VM>(ctx, _config, vBuild));
   }
 }
 
 /// 基类 state 扩展[StatefulWidget] 的 [State]
 mixin BaseViewOfState<T extends StatefulWidget, VM extends BaseViewModel>
     on State<T> {
-  late ViewConfig<VM> _config;
+  late final ViewConfig<VM> _config;
 
   /// 新的vm  方法
   VM get vm => _config.vm;

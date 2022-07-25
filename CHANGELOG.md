@@ -1,11 +1,25 @@
+## 2.1.2
+
+优化demo,优化全局刷新
+
+## 2.1.1
+
+优化BaseView 使Page支持const优化 const SelectPage();
+
+## 2.1.0
+
+Update SDK
+
 ## 2.0.9
+
 1. BaseView modify initConfig method
 
 ## 2.0.8
+
 1. repair demo
 2. widget add statusOrViewDisplay
 3. ViewConfig add isStatusPage
-4. BaseView and BaseViewOfState add  VM get vm => _config.vm;
+4. BaseView and BaseViewOfState add VM get vm => _config.vm;
 
 ## 2.0.7
 Optimization
@@ -131,9 +145,9 @@ BaseViewOfState新增获取对应ViewModel方法 VM vm()；
 BaseListViewModel
 
 BaseListViewModel({params, refreshController})
-      : super(defaultOfParams: params) {
-    _refreshController = refreshController;
-  }
+: super(defaultOfParams: params) {
+_refreshController = refreshController;
+}
 
 resetRefreshState｜finishRefresh｜resetLoadState｜finishLoad
 
