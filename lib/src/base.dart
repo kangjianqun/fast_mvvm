@@ -59,6 +59,7 @@ void initMVVM<VM extends BaseViewModel>(
   num? width, // 宽度
 }) {
   /// 载入model 后期调用API
+  models.insert(0, BaseModel());
   addModel(list: models);
 
   initPageSize(width?.toDouble(), height?.toDouble());

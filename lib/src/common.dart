@@ -51,8 +51,8 @@ class DataResponse<T> {
 
 /// view层 配置用类  配置全局默认状态页
 class ViewConfig<VM extends BaseViewModel> {
-  ViewConfig({
-    required this.vm,
+  ViewConfig(
+    this.vm, {
     this.child,
     this.color,
     this.load = true,
@@ -88,8 +88,8 @@ class ViewConfig<VM extends BaseViewModel> {
     vm.rootRefresh = root;
   }
 
-  ViewConfig.noRoot({
-    required this.vm,
+  ViewConfig.noRoot(
+    this.vm, {
     this.child,
     this.color,
     this.load = true,
@@ -107,8 +107,8 @@ class ViewConfig<VM extends BaseViewModel> {
     vm.rootRefresh = root;
   }
 
-  ViewConfig.noLoad({
-    required this.vm,
+  ViewConfig.noLoad(
+    this.vm, {
     this.child,
     this.color,
     this.load = false,
