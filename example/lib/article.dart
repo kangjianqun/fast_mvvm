@@ -181,7 +181,7 @@ class ArticlePage extends StatelessWidget with BaseView<ArticleVM> {
 //  }
 //
 //  @override
-//  Widget vmBuild(
+//  Widget vBuild(
 //      BuildContext context, SelectVM vm, Widget child, Widget state) {
 //    // TODO: implement vmBuild
 //    throw UnimplementedError();

@@ -164,11 +164,11 @@ class ViewConfig<VM extends BaseViewModel> {
   VSBuilder<VM>? unAuthorized;
 
   void setViewState() {
-    this.busy ??= gBusy;
-    this.empty ??= gEmpty;
-    this.error ??= gError;
-    this.unAuthorized ??= gunAuthorized;
-    this.isStatusPage ??= gIsStatusPage;
+    busy ??= gBusy;
+    empty ??= gEmpty;
+    error ??= gError;
+    unAuthorized ??= gunAuthorized;
+    isStatusPage ??= gIsStatusPage;
   }
 }
 
@@ -205,6 +205,7 @@ class ViewStateNotifier {
 Map<int, _ViewStateNotifier> _changerState = {};
 
 /// 获取状态配置
+// ignore: library_private_types_in_public_api
 _ViewStateNotifier changerStateGet(int state) {
   if (!_changerState.containsKey(state)) {
     _changerState[state] = _ViewStateNotifier(ValueNotifier(false));
@@ -231,8 +232,11 @@ ViewStateNotifier changerStateCheck(int state) {
 Map<String, BaseModel> _mList = {};
 
 /// 添加Model
-void addModel({required List<BaseModel> list}) =>
-    list.forEach((element) => _addModel(element));
+void addModel({required List<BaseModel> list}) {
+  for (var element in list) {
+    _addModel(element);
+  }
+}
 
 _addModel(BaseModel model) => _mList[model.runtimeType.toString()] = model;
 
@@ -240,5 +244,5 @@ _addModel(BaseModel model) => _mList[model.runtimeType.toString()] = model;
 M getModelGlobal<M extends BaseModel>() => _mList[M.toString()] as M;
 
 /// 得到通知者
-T getVM<T extends ChangeNotifier>(BuildContext ctx, {bool listen: false}) =>
+T getVM<T extends ChangeNotifier>(BuildContext ctx, {bool listen = false}) =>
     Provider.of<T>(ctx, listen: listen);

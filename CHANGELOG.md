@@ -1,10 +1,14 @@
+## 2.1.4
+
+Optimize the BaseViewModel#vm method
+
 ## 2.1.3
 
-优化全局基础BaseModel，避免空和内存浪费
+Optimize the global basic Base Model to avoid emptiness and memory waste
 
 ## 2.1.2
 
-优化demo,优化全局刷新
+Optimize demo, optimize global refresh
 
 ## 2.1.1
 

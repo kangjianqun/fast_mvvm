@@ -68,22 +68,27 @@ void initMVVM<VM extends BaseViewModel>(
   if (busy != null) ViewConfig.gBusy = busy as VSBuilder;
   if (empty != null) ViewConfig.gEmpty = empty as VSBuilder;
   if (error != null) ViewConfig.gError = error as VSBuilder;
-  if (unAuthorized != null)
+  if (unAuthorized != null) {
     ViewConfig.gunAuthorized = unAuthorized as VSBuilder;
-  if (listDataEmpty != null)
+  }
+  if (listDataEmpty != null) {
     ViewConfig.gListDataEmpty = listDataEmpty as VSBuilder;
+  }
 
   dataOfHttpOrData ??= (vm) => true;
   BaseViewModel._dataFromNetworkOrDatabase = dataOfHttpOrData;
 
-  if (resetRefreshState != null)
+  if (resetRefreshState != null) {
     BaseListViewModel._resetRefreshState = resetRefreshState;
+  }
   if (finishRefresh != null) BaseListViewModel._finishRefresh = finishRefresh;
-  if (resetLoadState != null)
+  if (resetLoadState != null) {
     BaseListViewModel._resetLoadState = resetLoadState;
+  }
   if (finishLoad != null) BaseListViewModel._finishLoad = finishLoad;
-  if (controllerBuild != null)
+  if (controllerBuild != null) {
     BaseListViewModel._controllerBuild = controllerBuild;
+  }
 }
 
 // model 接口
@@ -111,7 +116,7 @@ abstract class BaseViewModel<M extends BaseModel, E extends BaseEntity>
   BaseViewModel({ViewModelState? viewState, this.defaultOfParams})
       : _viewState = viewState ?? ViewModelState.idle {
     _init(false);
-    Future.delayed(Duration(seconds: 1), () => _init(true));
+    Future.delayed(const Duration(seconds: 1), () => _init(true));
   }
 
   /// model API
@@ -123,7 +128,7 @@ abstract class BaseViewModel<M extends BaseModel, E extends BaseEntity>
   E? entity;
 
   /// 默认参数
-  var defaultOfParams;
+  dynamic defaultOfParams;
 
   /// 主动全局刷新 用在首次跟下拉刷新和上拉加载
   bool _activeGlobalRefresh = false;
@@ -185,7 +190,7 @@ abstract class BaseViewModel<M extends BaseModel, E extends BaseEntity>
   }
 
   /// 端口 key 跟 回调监听
-  Map<String, EventListen> get portMap => Map<String, EventListen>();
+  Map<String, EventListen> get portMap => <String, EventListen>{};
 
   /// 绑定初始化 大量绑定
   void _eventButAddInit(Map<String, EventListen>? portMap) {
@@ -204,19 +209,23 @@ abstract class BaseViewModel<M extends BaseModel, E extends BaseEntity>
     return EventBus.getDefault().register(key, listen);
   }
 
-  List _disposeWait = [];
+  final List _disposeWait = [];
 
   void _disposeInit() {
-    for (var item in waitDispose()) _disposeAdd(item);
+    for (var item in waitDispose()) {
+      _disposeAdd(item);
+    }
   }
 
   void _disposeAdd(item) {
     try {
-      if (item == null)
+      if (item == null) {
         _disposeWait.add(item);
-      else if (item is StreamSubscription)
+      } else if (item is StreamSubscription) {
         _disposeWait.add(item);
-      else if (item.dispose != null) _disposeWait.add(item);
+      } else if (item.dispose != null) {
+        _disposeWait.add(item);
+      }
     } catch (e, s) {
       handleCatch(e, s, hintError: false);
     }
@@ -224,7 +233,7 @@ abstract class BaseViewModel<M extends BaseModel, E extends BaseEntity>
 
   /// 清理内存占用
   void _disposeList() {
-    for (var item in _disposeWait)
+    for (var item in _disposeWait) {
       if (item != null) {
         try {
           if (item is StreamSubscription) {
@@ -238,6 +247,7 @@ abstract class BaseViewModel<M extends BaseModel, E extends BaseEntity>
           item = null;
         }
       }
+    }
   }
 
   @override
@@ -276,7 +286,7 @@ abstract class BaseViewModel<M extends BaseModel, E extends BaseEntity>
   bool isHttp() => _dataFromNetworkOrDatabase(this);
 
   /// 页面刷新 默认全局刷新，并不显示加载过程
-  Future<void> pageRefresh({bool busy: false, bool globalRefresh: true}) {
+  Future<void> pageRefresh({bool busy = false, bool globalRefresh = true}) {
     return viewRefresh(busy: busy, rootRefresh: globalRefresh);
   }
 
@@ -312,7 +322,7 @@ abstract class BaseViewModel<M extends BaseModel, E extends BaseEntity>
       if (checkEmpty && (data == null || data.entity == null)) {
         return false;
       } else {
-        entity = data!.entity!;
+        entity = data!.entity as E;
         initResultData();
         return true;
       }
@@ -369,8 +379,8 @@ abstract class BaseViewModel<M extends BaseModel, E extends BaseEntity>
     if (e is DioError && e.error is UnAuthorizedException) {
       setUnAuthorized();
     } else {
-      debugPrint('error--->\n' + e.toString());
-      debugPrint('stack--->\n' + s.toString());
+      debugPrint('error--->\n$e');
+      debugPrint('stack--->\n$s');
       if (hintError) setError(e is Error ? e.toString() : e.message);
     }
   }
@@ -405,26 +415,30 @@ abstract class BaseListViewModel<M extends BaseModel, E extends BaseEntity, I>
 
   /// 重置下拉刷新状态
   resetRefreshState(controller) {
-    if (_resetRefreshState != null && controller != null)
+    if (_resetRefreshState != null && controller != null) {
       _resetRefreshState!(controller);
+    }
   }
 
   /// 完成下拉刷新
   finishRefresh(controller, {bool success = true, bool noMore = false}) {
-    if (_finishRefresh != null && controller != null)
+    if (_finishRefresh != null && controller != null) {
       _finishRefresh!(controller, success: success, noMore: noMore);
+    }
   }
 
   /// 重置上拉加载状态
   resetLoadState(controller) {
-    if (_resetLoadState != null && controller != null)
+    if (_resetLoadState != null && controller != null) {
       _resetLoadState!(controller);
+    }
   }
 
   /// 完成上拉加载
   finishLoad(controller, {bool success = true, bool noMore = false}) {
-    if (_finishLoad != null && controller != null)
+    if (_finishLoad != null && controller != null) {
       _finishLoad!(controller, success: success, noMore: noMore);
+    }
   }
 
   /// list 数据 [ListOrGridEmpty] 可以配置使用
@@ -439,10 +453,11 @@ abstract class BaseListViewModel<M extends BaseModel, E extends BaseEntity, I>
   /// 验证数据
   bool _checkData(bool isLoad, DataResponse<E?>? data) {
     if (data == null || data.entity == null) return true;
-    if (isLoad)
+    if (isLoad) {
       jointList(data.entity!);
-    else
-      entity = data.entity!;
+    } else {
+      entity = data.entity as E;
+    }
     return judgeNull(data);
   }
 
@@ -459,6 +474,7 @@ abstract class BaseListViewModel<M extends BaseModel, E extends BaseEntity, I>
   void initResultData() {}
 
   /// 获取数据
+  @override
   Future<bool> _request({param}) async {
     try {
       _currentPageNum = pageFirst;
@@ -511,8 +527,8 @@ abstract class BaseListViewModel<M extends BaseModel, E extends BaseEntity, I>
         _currentPageNum--;
         finishLoad(_refreshController, success: false);
         resetLoadState(_refreshController);
-        debugPrint('error--->\n' + e.toString());
-        debugPrint('stack--->\n' + s.toString());
+        debugPrint('error--->\n$e');
+        debugPrint('stack--->\n$s');
       } finally {
         resetRefreshState(_refreshController);
       }
@@ -523,7 +539,6 @@ abstract class BaseListViewModel<M extends BaseModel, E extends BaseEntity, I>
   void dispose() {
     try {
       if (_refreshController != null) _refreshController.dispose();
-    } catch (e) {
     } finally {
       _refreshController = null;
     }
@@ -548,32 +563,32 @@ Widget _viewState<VM extends BaseViewModel>(
   var error = data.error == null ? null : data.error!(vm);
   var un = data.unAuthorized == null ? null : data.unAuthorized!(vm);
 
-  Widget? _widget;
+  Widget? widget;
 
   /// 页面刷新的方法
 
   /// vm空 ｜｜ 需要验证空并且VM确实没有值
   if (checkEmpty && vm.empty) {
-    _widget = empty ??
+    widget = empty ??
         Container(
           color: bgColor,
           child: ViewStateEmptyWidget(
               onTap: () => vm.viewRefresh(rootRefresh: true)),
         );
   } else if (vm.busy) {
-    _widget = busy ?? ViewStateBusyWidget(backgroundColor: bgColor);
+    widget = busy ?? ViewStateBusyWidget(backgroundColor: bgColor);
   } else if (vm.error) {
-    _widget = error ??
+    widget = error ??
         ViewStateWidget(onTap: () => vm.viewRefresh(rootRefresh: true));
   } else if (vm.unAuthorized) {
-    _widget = un ??
+    widget = un ??
         ViewStateUnAuthWidget(onTap: () => vm.viewRefresh(rootRefresh: true));
   }
 
-  Widget view = builder(_widget);
+  Widget view = builder(widget);
 
   /// 添加背景颜色
-  if (bgColor != null) view = Container(child: view, color: bgColor);
+  if (bgColor != null) view = Container(color: bgColor, child: view);
 
   /// 判断是否需要页面控制刷新
   if (state == null) {
@@ -594,7 +609,7 @@ Widget _viewState<VM extends BaseViewModel>(
         } catch (e) {
           print(e);
         }
-        return SizedBox();
+        return const SizedBox();
       },
     );
     return Stack(children: <Widget>[changer, Positioned.fill(child: view)]);
@@ -628,10 +643,12 @@ ChangeNotifierProvider _root<VM extends BaseViewModel>(
   );
 }
 
+Map<int, BaseViewModel> list = {};
+
 /// 基类 view 扩展[StatelessWidget]
 mixin BaseView<VM extends BaseViewModel> on StatelessWidget {
   /// 新的vm  方法
-  VM get vm => initConfig().vm;
+  VM get vm => list[hashCode] as VM;
 
   /// 初始化配置
   @protected
@@ -646,18 +663,19 @@ mixin BaseView<VM extends BaseViewModel> on StatelessWidget {
     if (config.load) await config.vm.viewRefresh();
   }
 
-  /// 使用 [vBuild]
-  @deprecated
+  /// 不用使用 build 使用 [vBuild]
+  @Deprecated("不用使用 build 使用 vBuild")
   @override
   Widget build(BuildContext ctx) {
-    ViewConfig<VM> _config = initConfig();
+    ViewConfig<VM> config = initConfig();
+    list[hashCode] = config.vm;
 
     /// 是否需要加载
-    if (!_config.load) return _root<VM>(ctx, _config, vBuild);
+    if (!config.load) return _root<VM>(ctx, config, vBuild);
 
     return FutureBuilder(
-        future: _init(ctx, _config),
-        builder: (ctx, __) => _root<VM>(ctx, _config, vBuild));
+        future: _init(ctx, config),
+        builder: (ctx, __) => _root<VM>(ctx, config, vBuild));
   }
 }
 
@@ -671,13 +689,13 @@ mixin BaseViewOfState<T extends StatefulWidget, VM extends BaseViewModel>
 
   /// VM 相关
   @protected
-  Widget vmBuild(BuildContext context, VM vm, Widget? child, Widget? state);
+  Widget vBuild(BuildContext context, VM vm, Widget? child, Widget? state);
 
   /// 初始化配置
   @protected
   ViewConfig<VM> initConfig(BuildContext context);
 
-  /// 因为[mixin]在[vmBuild] 之前 执行自定义方法
+  /// 因为[mixin]在[vBuild] 之前 执行自定义方法
   /// 场景 [AutomaticKeepAliveClientMixin]
   /// 这种需要执行super.updateKeepAlive() 替换 super.build(context)
   void mixinBuild(BuildContext context) {}
@@ -690,12 +708,12 @@ mixin BaseViewOfState<T extends StatefulWidget, VM extends BaseViewModel>
     super.initState();
   }
 
-  /// 使用 [vmBuild]
-  @deprecated
+  /// 不用使用 build 使用 [vBuild]
+  @Deprecated("不用使用 build 使用 vBuild")
   @override
   Widget build(BuildContext context) {
     mixinBuild(context);
 //    LogUtil.printLog("build:----" + this.runtimeType.toString());
-    return _root<VM>(context, _config, vmBuild);
+    return _root<VM>(context, _config, vBuild);
   }
 }

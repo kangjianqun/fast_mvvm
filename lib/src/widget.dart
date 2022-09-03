@@ -36,9 +36,9 @@ Widget vmEmptyView<T extends BaseViewModel>(
 
 /// 空Widget大小类型
 enum ViewSizeType {
-  Not, // 无
-  Expanded,
-  Size, // 确定
+  not, // 无
+  expanded,
+  size, // 确定
 }
 
 enum MaxIndex { top, center, below }
@@ -73,7 +73,7 @@ class ListOrGridEmpty extends StatelessWidget {
     required this.vm,
     required this.childBuild,
     this.emptyBuild,
-    this.viewSizeType = ViewSizeType.Not,
+    this.viewSizeType = ViewSizeType.not,
     this.useViewSizeType = false,
     this.emptyViewUseViewSizeType = false,
   })  : height = null,
@@ -86,7 +86,7 @@ class ListOrGridEmpty extends StatelessWidget {
     required this.vm,
     required this.childBuild,
     this.emptyBuild,
-    this.viewSizeType = ViewSizeType.Expanded,
+    this.viewSizeType = ViewSizeType.expanded,
     this.useViewSizeType = false,
     this.emptyViewUseViewSizeType = true,
   })  : height = null,
@@ -101,7 +101,7 @@ class ListOrGridEmpty extends StatelessWidget {
     required this.height,
     required this.width,
     this.emptyBuild,
-    this.viewSizeType = ViewSizeType.Size,
+    this.viewSizeType = ViewSizeType.size,
     this.useViewSizeType = false,
     this.emptyViewUseViewSizeType = true,
   }) : super(key: key);
@@ -129,40 +129,41 @@ class ListOrGridEmpty extends StatelessWidget {
     VSBuilder<BaseListViewModel>? emptyBuild,
   }) {
     List<Widget> list = [];
-    num _height = height ?? _pageHeight;
-    num _width = width ?? _pageWidth;
+    height ??= _pageHeight;
+    width ??= _pageWidth;
 
-    var empty = vm.list == null || vm.list!.length <= 0;
+    var empty = vm.list == null || vm.list!.isEmpty;
 
     Widget emptyView = Expanded(child: _emptyWidget(emptyBuild, vm));
 
-    Widget? _top = emptyIntactWidget.top,
-        _center = emptyIntactWidget.center,
-        _below = emptyIntactWidget.below;
+    Widget? top = emptyIntactWidget.top,
+        center = emptyIntactWidget.center,
+        below = emptyIntactWidget.below;
     switch (emptyIntactWidget.maxIndex) {
       case MaxIndex.top:
-        _top = empty ? emptyView : emptyIntactWidget.top;
+        top = empty ? emptyView : emptyIntactWidget.top;
         break;
       case MaxIndex.center:
-        _center = empty ? emptyView : emptyIntactWidget.center;
+        center = empty ? emptyView : emptyIntactWidget.center;
         break;
       case MaxIndex.below:
-        _below = empty ? emptyView : emptyIntactWidget.below;
+        below = empty ? emptyView : emptyIntactWidget.below;
         break;
     }
 
-    if (_top != null) list.add(_top);
-    if (_center != null) list.add(_center);
-    if (_below != null) list.add(_below);
+    if (top != null) list.add(top);
+    if (center != null) list.add(center);
+    if (below != null) list.add(below);
 
-    if (empty)
+    if (empty) {
       list = [
-        Container(
-          width: _width.toDouble(),
-          height: _height.toDouble(),
+        SizedBox(
+          width: width.toDouble(),
+          height: height.toDouble(),
           child: Column(children: list),
         )
       ];
+    }
 
     return list;
   }
@@ -180,18 +181,18 @@ class ListOrGridEmpty extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var empty = vm.list == null || vm.list!.length <= 0;
+    var empty = vm.list == null || vm.list!.isEmpty;
 
     Widget view = empty ? _emptyWidget(emptyBuild, vm) : childBuild();
     if ((useViewSizeType && !empty) || (emptyViewUseViewSizeType && empty)) {
       switch (viewSizeType) {
-        case ViewSizeType.Not:
+        case ViewSizeType.not:
           break;
-        case ViewSizeType.Expanded:
+        case ViewSizeType.expanded:
           view = Expanded(child: view);
           break;
-        case ViewSizeType.Size:
-          view = Container(
+        case ViewSizeType.size:
+          view = SizedBox(
             height: height!.toDouble(),
             width: width!.toDouble(),
             child: view,
@@ -225,14 +226,14 @@ class ViewStateBusyWidget extends StatelessWidget {
     return Container(
       color: backgroundColor ?? Colors.white,
       alignment: Alignment.center,
-      child: CircularProgressIndicator(),
+      child: const CircularProgressIndicator(),
     );
   }
 }
 
 /// 基础Widget
 class ViewStateWidget extends StatelessWidget {
-  ViewStateWidget({
+  const ViewStateWidget({
     Key? key,
     this.image,
     this.message,
@@ -260,7 +261,7 @@ class ViewStateWidget extends StatelessWidget {
             image ??
                 Icon(Icons.error_outline, size: 48, color: Colors.grey[500]),
             Padding(
-              padding: EdgeInsets.only(top: 48, bottom: 88),
+              padding: const EdgeInsets.only(top: 48, bottom: 88),
               child: Text(
                 message ?? "加载失败",
                 style: Theme.of(context)
@@ -269,7 +270,7 @@ class ViewStateWidget extends StatelessWidget {
                     .copyWith(color: Colors.grey),
               ),
             ),
-            ViewStateButton(child: buttonText, onTap: onTap)
+            ViewStateButton(onTap: onTap, child: buttonText)
           ],
         ),
       ),
@@ -295,11 +296,12 @@ class ViewStateEmptyWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ViewStateWidget(
-      onTap: this.onTap,
+      onTap: onTap,
       image: image ??
           const Icon(Icons.error_outline, size: 48, color: Colors.grey),
       message: message ?? "空空如也",
-      buttonText: buttonText ?? Text("刷新一下", style: TextStyle(fontSize: 20)),
+      buttonText:
+          buttonText ?? const Text("刷新一下", style: TextStyle(fontSize: 20)),
     );
   }
 }
@@ -322,10 +324,11 @@ class ViewStateUnAuthWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ViewStateWidget(
-      onTap: this.onTap,
+      onTap: onTap,
       image: image,
       message: message ?? "未登录",
-      buttonText: buttonText ?? Text("登录", style: TextStyle(wordSpacing: 5)),
+      buttonText:
+          buttonText ?? const Text("登录", style: TextStyle(wordSpacing: 5)),
     );
   }
 }
@@ -335,7 +338,8 @@ class ViewStateButton extends StatelessWidget {
   final GestureTapCallback onTap;
   final Widget? child;
 
-  const ViewStateButton({required this.onTap, this.child});
+  const ViewStateButton({Key? key, required this.onTap, this.child})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -343,12 +347,12 @@ class ViewStateButton extends StatelessWidget {
       onTap: onTap,
       child: child ??
           Container(
-            padding: EdgeInsets.fromLTRB(32, 8, 32, 8),
+            padding: const EdgeInsets.fromLTRB(32, 8, 32, 8),
             decoration: BoxDecoration(
               border: Border.all(),
-              borderRadius: BorderRadius.horizontal(),
+              borderRadius: const BorderRadius.horizontal(),
             ),
-            child: Text("重试", style: TextStyle(fontSize: 50)),
+            child: const Text("重试", style: TextStyle(fontSize: 50)),
           ),
     );
   }
