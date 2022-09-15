@@ -102,6 +102,12 @@ class BaseModel with BaseRepo {}
 /// 基类Entity JSON数据实体
 class BaseEntity {}
 
+class BaseListEntity<T> {
+  List<T> list;
+
+  BaseListEntity(this.list);
+}
+
 // ViewModel 数据绑定，业务逻辑 主要是[BaseViewModel]和[BaseListViewModel]
 
 /// ViewModel的状态 控制页面基础显示
