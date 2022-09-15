@@ -102,7 +102,7 @@ class BaseModel with BaseRepo {}
 /// 基类Entity JSON数据实体
 class BaseEntity {}
 
-class BaseListEntity<T> {
+class BaseListEntity<T> extends BaseEntity {
   List<T> list;
 
   BaseListEntity(this.list);
