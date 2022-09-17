@@ -103,9 +103,11 @@ class BaseModel with BaseRepo {}
 class BaseEntity {}
 
 class BaseListEntity<T> extends BaseEntity {
-  List<T> list;
+  late List<T> list;
 
-  BaseListEntity(this.list);
+  BaseListEntity({List<T>? list}) {
+    this.list = list ?? [];
+  }
 }
 
 // ViewModel 数据绑定，业务逻辑 主要是[BaseViewModel]和[BaseListViewModel]
