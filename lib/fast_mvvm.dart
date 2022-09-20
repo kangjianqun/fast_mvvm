@@ -1,6 +1,7 @@
 export 'src/base.dart';
 export 'src/common.dart';
 export 'src/widget.dart';
+export 'package:provider/provider.dart';
 
 // 基于MVVM架构设计
 // Entity 数据实体类
