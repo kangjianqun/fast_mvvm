@@ -1,9 +1,6 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/widgets.dart';
-import 'package:provider/provider.dart';
 
 import '../fast_mvvm.dart';
-import 'base.dart';
 
 /// 接口数据 响应
 class DataResponse<T> {
@@ -13,7 +10,7 @@ class DataResponse<T> {
   bool result;
 
   /// dio 的默认
-  Response? response;
+  dynamic response;
 
   /// 当前页面总页码  配合 [BaseListViewModel] 默认一页
   int? totalPageNum;

@@ -1,10 +1,8 @@
 import 'dart:async';
 
-import 'package:dio/dio.dart';
 import 'package:fast_event_bus/fast_event_bus.dart';
 import 'package:fast_mvvm/fast_mvvm.dart';
 import 'package:flutter/widgets.dart';
-import 'package:provider/provider.dart';
 
 // 基于MVVM架构设计
 // Entity 数据实体类
@@ -384,7 +382,7 @@ abstract class BaseViewModel<M extends BaseModel, E extends BaseEntity>
   /// [s] 为堆栈信息
   void handleCatch(e, s, {bool hintError = true}) {
     // DioError的判断,理论不应该拿进来,增强了代码耦合性,抽取为时组件时.应移除
-    if (e is DioError && e.error is UnAuthorizedException) {
+    if (e.error != null && e.error is UnAuthorizedException) {
       setUnAuthorized();
     } else {
       debugPrint('error--->\n$e');
